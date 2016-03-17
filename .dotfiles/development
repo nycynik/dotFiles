@@ -1,0 +1,44 @@
+# 
+# PYTHON
+#
+
+# pip
+# pip should only run if there is a virtualenv currently activated
+export PIP_REQUIRE_VIRTUALENV=true
+gpip(){
+   PIP_REQUIRE_VIRTUALENV="" pip "$@"
+}
+
+# virutal envs
+function deve { source ~/.virtualenvs/$1/bin/activate; }
+export -f deve
+
+#
+# Package managers
+#
+
+# nvm
+if [ -s "$(brew --prefix nvm)/nvm.sh" ]; then
+	export NVM_DIR=~/.nvm
+	. $(brew --prefix nvm)/nvm.sh
+fi
+# maven, rvm, gvm if they exist, include them. (should be at the end.)
+[[ -s "$HOME/bin/mvn.sh" ]] && source ~/bin/mvn.sh
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
+[[ -s "$HOME/.gvm/bin/gvm-init.sh" ]] && source "$HOME/.gvm/bin/gvm-init.sh"
+
+#
+# Databases
+#
+
+# Oracle instant client
+if [ -d "/opt/oracle/instantclient/"]; then
+	export ORACLE_HOME=/opt/oracle/instantclient
+fi
+if [ -n "$ORACLE_HOME" ]; then
+	export DYLD_LIBRARY_PATH=$ORACLE_HOME
+	export LD_LIBRARY_PATH=$ORACLE_HOME
+	export NLS_LANG=AMERICAN_AMERICA.UTF8
+	export TNS_ADMIN=$HOME/etc
+	export PATH=$PATH:$ORACLE_HOME
+fi

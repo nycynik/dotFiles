@@ -1,0 +1,9 @@
+# Colors
+export CLICOLOR=1
+export LSCOLORS=ExFxCxDxBxegedabagacad
+
+# Prompt
+export PS1="\e]2;\$(pwd)\a\e]1;\$(pwd)\a\e[31;1m\$(s=\$(printf "%*s" \$COLUMNS); echo \${s// /―})\n)\e[0m ";
+export PS1='\[\e]0;\w\a\]\n\[\e[32m\]\u@\h: \[\e[33m\]\w\[\e[0m\]\n\$ '
+
+

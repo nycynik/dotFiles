@@ -1,3 +1,13 @@
+# --=====[ Setup ]====-- ----  -=-
+# Detect which `ls` flavor is in use
+# from https://github.com/mathiasbynens/dotfiles/blob/master/.aliases
+if ls --color > /dev/null 2>&1; then # GNU `ls`
+	colorflag="--color"
+else # OS X `ls`
+	colorflag="-G"
+fi
+
+
 #
 # --=====[ Alias and Function Definitions ]==-- --=--  --
 #
@@ -5,7 +15,8 @@ alias cp='cp -iv'                           # Make copy warn when overwriting, a
 alias mv='mv -iv'                           # Make move warn when overwriting and be verbose
 alias mkdir='mkdir -pv'                     # Allow parent directories to be created as needed
                                             # and be verbose
-alias ll='ls -FlAh'                         # List long - Classify files, All files, human readble
+alias ls="command ls ${colorflag}"          # use colored output for ls
+alias ll="ls -FlAh ${colorflag}             # List long - Classify files, All files, human readble
 alias less='less -FRX'                      # Force quit if fits on a screen, show color if in the
                                             # original file, dont clear the screen on init
 
