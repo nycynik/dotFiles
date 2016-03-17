@@ -9,7 +9,18 @@ gpip(){
    PIP_REQUIRE_VIRTUALENV="" pip "$@"
 }
 
-# virutal envs
+# 
+# VIRTUAL ENVS
+#
+if [ -d "$HOME/.rbenv" ]; then
+	eval "$(rbenv init -)"; 
+fi
+
+if [ -d "$HOME/.jenv/" ]; then
+	export PATH="$HOME/.jenv/bin:$PATH"
+	eval "$(jenv init -)"
+fi
+
 function deve { source ~/.virtualenvs/$1/bin/activate; }
 export -f deve
 
@@ -24,7 +35,8 @@ if [ -s "$(brew --prefix nvm)/nvm.sh" ]; then
 fi
 # maven, rvm, gvm if they exist, include them. (should be at the end.)
 [[ -s "$HOME/bin/mvn.sh" ]] && source ~/bin/mvn.sh
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
+# Load RVM into a shell session *as a function*
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" 
 [[ -s "$HOME/.gvm/bin/gvm-init.sh" ]] && source "$HOME/.gvm/bin/gvm-init.sh"
 
 #
@@ -32,7 +44,7 @@ fi
 #
 
 # Oracle instant client
-if [ -d "/opt/oracle/instantclient/"]; then
+if [ -d "/opt/oracle/instantclient/" ]; then
 	export ORACLE_HOME=/opt/oracle/instantclient
 fi
 if [ -n "$ORACLE_HOME" ]; then

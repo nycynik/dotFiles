@@ -4,13 +4,19 @@
 
 # include my dotfiles.
 source ~/.dotfiles/aliases
-source ~/.dotfiles/prompt
+source ~/.dotfiles/env
 source ~/.dotfiles/development
+source ~/.dotfiles/prompt
 
 # include my personal bin folder in the Path
-export PATH=$PATH:~/bin
+if [ -d "$HOME/bin/" ]; then
+	export PATH=$PATH:~/bin
+fi
 
 # bash completion
 if [ -f $(brew --prefix)/etc/bash_completion ]; then
     . $(brew --prefix)/etc/bash_completion
 fi
+
+
+
