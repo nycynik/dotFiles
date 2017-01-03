@@ -16,12 +16,12 @@ function prompt_node {
   if hash node 2>/dev/null; then
     local v=$(node -v)
   fi
-  [ "$v" != "" ] && echo "n:${v:1}"
+  [ "$v" != "" ] && echo "${violet}[${yellow}n${gray}:${yellow}${v:1}${violet}]"
 }
 
 function prompt_virtualenv {
   local env=$(basename "$VIRTUAL_ENV")
-  [ "$env" != "" ] && echo "py:$env"
+  [ "$env" != "" ] && echo "${violet}[${green}py${gray}:${green}$env${violet}]"
 }
 
 prompt_git() {
@@ -68,7 +68,7 @@ prompt_git() {
 
 		[ -n "${s}" ] && s=" (${s})";
 
-		printf "${1}${branchName}${blue}${s}${reset}";
+		printf "${violet}[${1}git${gray}:${1}${branchName}${blue}${s}${violet}]${reset}";
 	else
 		return;
 	fi;
@@ -80,6 +80,7 @@ if tput setaf 1 &> /dev/null; then
 	reset=$(tput sgr0);
 	# Solarized colors, taken from http://git.io/solarized-colors.
 	black=$(tput setaf 0);
+	gray=$(tput setaf 7);
 	blue=$(tput setaf 33);
 	cyan=$(tput setaf 37);
 	green=$(tput setaf 64);
@@ -93,6 +94,7 @@ else
 	bold='';
 	reset="\e[0m";
 	black="\e[1;30m";
+	gray="\e[1;37m";
 	blue="\e[1;34m";
 	cyan="\e[1;36m";
 	green="\e[1;32m";
@@ -122,9 +124,9 @@ fi;
 PS1="\[\033]0;\w\007\]\[${bold}\]";
 
 PS1DEV=""
-PS1DEV+="${violet}[${yellow}\$(prompt_node)${violet}]"; # Node details
-PS1DEV+="${violet}[${green}\$(prompt_virtualenv)${violet}]"; # Python details
-PS1DEV+="${violet}[\$(prompt_git \"${reset}\")${violet}]"; # Git repository details
+PS1DEV+="\$(prompt_node)"; # Node details
+PS1DEV+="\$(prompt_virtualenv)"; # Python details
+PS1DEV+="\$(prompt_git \"${reset}\")"; # Git repository details
 [[ !  -z  $PS1DEV  ]] && PS1+="\n$PS1DEV"
 
 PS1+="\n"; # newline
