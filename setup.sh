@@ -13,3 +13,8 @@ git config --global alias.type 'cat-file -t'
 git config --global alias.dump 'cat-file -p'
 git config --global alias.hist 'log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short'
 
+echo bin setup
+if [ ! -d "$HOME/bin/" ]; then
+	mkdir "$HOME/bin"
+fi
+
