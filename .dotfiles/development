@@ -54,3 +54,9 @@ if [ -n "$ORACLE_HOME" ]; then
 	export TNS_ADMIN=$HOME/etc
 	export PATH=$PATH:$ORACLE_HOME
 fi
+
+#
+# Git
+#
+
+
