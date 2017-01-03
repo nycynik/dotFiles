@@ -12,6 +12,18 @@ elif infocmp xterm-256color >/dev/null 2>&1; then
 	export TERM='xterm-256color';
 fi;
 
+function prompt_node {
+  if hash node 2>/dev/null; then
+    local v=$(node -v)
+  fi
+  [ "$v" != "" ] && echo "n:${v:1}"
+}
+
+function prompt_virtualenv {
+  local env=$(basename "$VIRTUAL_ENV")
+  [ "$env" != "" ] && echo "py:$env"
+}
+
 prompt_git() {
 	local s='';
 	local branchName='';
@@ -54,9 +66,9 @@ prompt_git() {
 			git rev-parse --short HEAD 2> /dev/null || \
 			echo '(unknown)')";
 
-		[ -n "${s}" ] && s=" [${s}]";
+		[ -n "${s}" ] && s=" (${s})";
 
-		printf "\n${1}${branchName}${blue}${s}${reset}";
+		printf "${1}${branchName}${blue}${s}${reset}";
 	else
 		return;
 	fi;
@@ -109,7 +121,11 @@ fi;
 # Set the terminal title to the current working directory.
 PS1="\[\033]0;\w\007\]\[${bold}\]";
 
-PS1+="\$(prompt_git \"${violet}Branch ${reset}\")"; # Git repository details
+PS1DEV=""
+PS1DEV+="${violet}[${yellow}\$(prompt_node)${violet}]"; # Node details
+PS1DEV+="${violet}[${green}\$(prompt_virtualenv)${violet}]"; # Python details
+PS1DEV+="${violet}[\$(prompt_git \"${reset}\")${violet}]"; # Git repository details
+[[ !  -z  $PS1DEV  ]] && PS1+="\n$PS1DEV"
 
 PS1+="\n"; # newline
 PS1+="\[${userStyle}\]\u"; # username

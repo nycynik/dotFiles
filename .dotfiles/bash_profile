@@ -3,6 +3,7 @@
 [[ -s "$HOME/.bashrc" ]] && source ~/.bashrc
 
 # include my dotfiles.
+source ~/.dotfiles/functions
 source ~/.dotfiles/aliases
 source ~/.dotfiles/env
 source ~/.dotfiles/development

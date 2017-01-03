@@ -1,0 +1,11 @@
+#
+# custom bashrc file for launching shells with development
+# stuff enabled.
+#
+
+# include .bash_profile and profile
+[[ -s "$HOME/.bash_profile" ]] && source ~/.bash_profile
+
+source ~/.dotfiles/dev_prompt.sh
+
+
