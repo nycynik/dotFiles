@@ -136,9 +136,9 @@ PS1+="\[${hostStyle}\]\h"; # host
 PS1+=": ";
 PS1+="\[${yellow}\]\w"; # working directory
 
-PS1+="\n\[${white}\]\$ \[${reset}\]"; # `$` (and reset color)
+PS1+="\n${reset}\$ "; # `$` (and reset color)
 export PS1;
 
-PS2="\[${yellow}\]→ \[${reset}\]";
+PS2="${yellow}→ ${reset}";
 export PS2;
 
