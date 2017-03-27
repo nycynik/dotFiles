@@ -126,7 +126,7 @@ PS1="\[\033]0;\w\007\]\[${bold}\]";
 PS1DEV=""
 PS1DEV+="\$(prompt_node)"; # Node details
 PS1DEV+="\$(prompt_virtualenv)"; # Python details
-PS1DEV+="\$(prompt_git \"${reset}\")"; # Git repository details
+PS1DEV+="\$(prompt_git \"\[${reset}\]\")"; # Git repository details
 [[ !  -z  $PS1DEV  ]] && PS1+="\n$PS1DEV"
 
 PS1+="\n"; # newline
@@ -136,7 +136,7 @@ PS1+="\[${hostStyle}\]\h"; # host
 PS1+=": ";
 PS1+="\[${yellow}\]\w"; # working directory
 
-PS1+="\n${reset}\$ "; # `$` (and reset color)
+PS1+="\n\[${reset}\]\$ "; # `$` (and reset color)
 export PS1;
 
 PS2="${yellow}→ ${reset}";
