@@ -6,6 +6,9 @@
 # include .bash_profile and profile
 [[ -s "$HOME/.bash_profile" ]] && source ~/.bash_profile
 
+# stop virtualenv from showing prompt
+export VIRTUAL_ENV_DISABLE_PROMPT="skip"
+
 source ~/.dotfiles/dev_prompt.sh
 
 
