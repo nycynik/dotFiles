@@ -24,6 +24,20 @@ function prompt_virtualenv {
   [ "$env" != "" ] && echo "${violet}[${green}py${gray}:${green}$env${violet}]"
 }
 
+function prompt_ruby {
+    local ruby_version=$(rvm-prompt)
+    ruby_version=${ruby_version#ruby-}
+    [[ $ruby_version == *"@"* ]] || ruby_version="${ruby_version}"
+    echo "${violet}[ruby${gray}:$ruby_version${violet}]"
+}
+
+function prompt_rvm {
+    rbv=`rvm-prompt`
+    rbv=${rbv#ruby-}
+    [[ $rbv == *"@"* ]] || rbv="${rbv}@default"
+    echo $rbv
+}
+
 prompt_git() {
 	local s='';
 	local branchName='';
@@ -126,6 +140,7 @@ PS1="\[\033]0;\w\007\]\[${bold}\]";
 PS1DEV=""
 PS1DEV+="\$(prompt_node)"; # Node details
 PS1DEV+="\$(prompt_virtualenv)"; # Python details
+PS1DEV+="\$(prompt_ruby)"; # Ruby details
 PS1DEV+="\$(prompt_git \"\[${reset}\]\")"; # Git repository details
 [[ !  -z  $PS1DEV  ]] && PS1+="\n$PS1DEV"
 
