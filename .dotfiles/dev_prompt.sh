@@ -16,7 +16,7 @@ function prompt_node {
   if hash node 2>/dev/null; then
     local v=$(node -v)
   fi
-  [ "$v" != "" ] && echo "${violet}[${yellow}n${gray}:${yellow}${v:1}${violet}]"
+  [ "$v" != "" ] && echo "${violet}[${yellow}node${gray}:${yellow}${v:1}${violet}]"
 }
 
 function prompt_virtualenv {
@@ -28,7 +28,7 @@ function prompt_ruby {
     local ruby_version=$(rvm-prompt)
     ruby_version=${ruby_version#ruby-}
     [[ $ruby_version == *"@"* ]] || ruby_version="${ruby_version}"
-    echo "${violet}[ruby${gray}:$ruby_version${violet}]"
+    echo "${violet}[${blue}ruby${gray}:${blue}$ruby_version${violet}]"
 }
 
 function prompt_rvm {
@@ -142,6 +142,7 @@ PS1DEV+="\$(prompt_node)"; # Node details
 PS1DEV+="\$(prompt_virtualenv)"; # Python details
 PS1DEV+="\$(prompt_ruby)"; # Ruby details
 PS1DEV+="\$(prompt_git \"\[${reset}\]\")"; # Git repository details
+
 [[ !  -z  $PS1DEV  ]] && PS1+="\n$PS1DEV"
 
 PS1+="\n"; # newline
