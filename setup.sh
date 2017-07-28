@@ -44,6 +44,7 @@ if [ ! -d "$HOME/.bash_profile" ]; then
 	cat ./.dotfiles/bash_profile >> "$HOME/.bash_profile"
 fi
 
+echo "Finished.  You may want to remove the lic and ReadMe files from your home directory now."
 
 
 
