@@ -7,7 +7,7 @@ source ~/.dotfiles/functions
 source ~/.dotfiles/aliases
 source ~/.dotfiles/env
 source ~/.dotfiles/development
-source ~/.dotfiles/prompt
+source ~/.dotfiles/dev_prompt
 
 # include my personal bin folder in the Path
 if [ -d "$HOME/bin/" ]; then
