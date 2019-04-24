@@ -1,19 +1,18 @@
 #!/bin/sh
 
-echo git config
-git config --global core.editor nano
-git config --global alias.co checkout
-git config --global alias.br branch
-git config --global alias.ci commit
-git config --global alias.st status
-git config --global alias.ss 'status -s'
-git config --global alias.last 'log -1 HEAD'
-git config --global alias.p 'pull --rebase'
-git config --global alias.type 'cat-file -t'
-git config --global alias.dump 'cat-file -p'
-git config --global alias.hist 'log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short'
-git config --global core.excludesfile ~/.gitignore_global
-git config --global help.autocorrect 5
+if [ ! -d "${PWD}/.dotfiles ] ; then
+	echo "ABORTING: No .dotfiles found in current directory."
+	echo "          Script must be run from root of dotfiles repo."
+    	[[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1 # handle exits from shell or function but don'$
+fi
+
+if [ "${PWD}" != "${HOME}" ] ; then
+        echo "NOTE: script is not running from your home dir" 
+        read -p "Create symlink in ${PWD} [Y/n]? " -n 1 -r
+        if [[ "$REPLY" =~ ^[yY]$ ]] ; then
+                ln -s ./dotfiles ${PWD}/.dotfiles
+        fi
+fi
 
 echo bin setup
 if [ ! -d "$HOME/bin/" ]; then
@@ -38,13 +37,43 @@ then
     [[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1 # handle exits from shell or function but don't exit interactive shell
 fi
 
+echo ==========================================================
 echo Running first time setup
+echo ==========================================================
+
 if [ ! -d "$HOME/.bash_profile" ]; then
 	touch "$HOME/.bash_profile"
 	cat ./.dotfiles/bash_profile >> "$HOME/.bash_profile"
 fi
 
-echo "Finished.  You may want to remove the lic and ReadMe files from your home directory now."
+echo "bash setup"
+echo git config
+git config --global core.editor nano
+git config --global alias.co checkout
+git config --global alias.br branch
+git config --global alias.ci commit
+git config --global alias.st status
+git config --global alias.ss 'status -s'
+git config --global alias.last 'log -1 HEAD'
+git config --global alias.p 'pull --rebase'
+git config --global alias.type 'cat-file -t'
+git config --global alias.dump 'cat-file -p'
+git config --global alias.hist 'log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short'
+git config --global core.excludesfile ~/.gitignore_global
+git config --global help.autocorrect 5
+
+echo "Finished Setup"
+echo .
+echo "You may want to remove the lic and ReadMe files from your home directory now."
+
+read -p "Delete LICENSE and README.md now? " -n 1 -r
+echo .
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+	rm LICENSE
+	rm README.md
+fi
+
 
 
 
