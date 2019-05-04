@@ -62,6 +62,10 @@ git config --global alias.hist 'log --pretty=format:\"%h %ad | %s%d [%an]\" --gr
 git config --global core.excludesfile ~/.gitignore_global
 git config --global help.autocorrect 5
 
+# setup quicklook
+brew cask install qlcolorcode qlstephen qlmarkdown quicklook-json qlprettypatch quicklook-csv betterzipql qlimagesize webpquicklook suspicious-package
+brew install jq
+
 echo "Finished Setup"
 echo .
 echo "You may want to remove the lic and ReadMe files from your home directory now."

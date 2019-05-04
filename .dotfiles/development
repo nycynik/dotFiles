@@ -55,8 +55,3 @@ if [ -n "$ORACLE_HOME" ]; then
 	export PATH=$PATH:$ORACLE_HOME
 fi
 
-#
-# Git
-#
-
-
