@@ -64,7 +64,8 @@ git config --global help.autocorrect 5
 
 # setup quicklook
 brew cask install qlcolorcode qlstephen qlmarkdown quicklook-json qlprettypatch quicklook-csv betterzipql qlimagesize webpquicklook suspicious-package
-brew install jq
+brew install jq bash
+
 
 echo "Finished Setup"
 echo .
