@@ -20,4 +20,6 @@ Step2: Runt he setup file and follow the prompts
      . ./setup.sh
      
 
+# Future Ideas
 
+Check out the [wiki](https://github.com/nycynik/dotFiles/wiki)
