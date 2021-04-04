@@ -1,12 +1,12 @@
 #!/bin/sh
 
-if [ ! -d "${PWD}/.dotfiles ] ; then
+if [[ ! -d "${PWD}/.dotfiles" ]] ; then
 	echo "ABORTING: No .dotfiles found in current directory."
 	echo "          Script must be run from root of dotfiles repo."
     	[[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1 # handle exits from shell or function but don'$
 fi
 
-if [ "${PWD}" != "${HOME}" ] ; then
+if [[ "${PWD}" != "${HOME}" ]] ; then
         echo "NOTE: script is not running from your home dir" 
         read -p "Create symlink in ${PWD} [Y/n]? " -n 1 -r
         if [[ "$REPLY" =~ ^[yY]$ ]] ; then
@@ -15,17 +15,17 @@ if [ "${PWD}" != "${HOME}" ] ; then
 fi
 
 echo bin setup
-if [ ! -d "$HOME/bin/" ]; then
+if [[ ! -d "$HOME/bin/" ]]; then
 	mkdir "$HOME/bin"
 fi
 
 echo git setup
-if [ ! -d "$HOME/.gitignore_global" ]; then
+if [[ ! -d "$HOME/.gitignore_global" ]]; then
 	touch "$HOME/.gitignore_global"
 	cat ./.dotfiles/gitignore_global >> "$HOME/.gitignore_global"
 fi
 
-if [ ! -d "/usr/local/git/contrib/completion/" ]; then
+if [[ ! -d "/usr/local/git/contrib/completion/" ]]; then
 	brew install git bash-completion
 fi
 
@@ -41,7 +41,7 @@ echo ==========================================================
 echo Running first time setup
 echo ==========================================================
 
-if [ ! -d "$HOME/.bash_profile" ]; then
+if [[ ! -d "$HOME/.bash_profile" ]]; then
 	touch "$HOME/.bash_profile"
 	cat ./.dotfiles/bash_profile >> "$HOME/.bash_profile"
 fi

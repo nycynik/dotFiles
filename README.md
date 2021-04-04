@@ -16,11 +16,13 @@ Step1: Check out the repo in your home dir, that will make a hidden directory ca
      clone -depth=1 git@github.com:nycynik/dotFiles.git
      rm -rf ./.dotfiles/.git
      
-Step2: Runt he setup file and follow the prompts
+Step2: Run the setup file and follow the prompts
 
      . ./setup.sh
      
 
 # Future Ideas
 
-Check out the [wiki](https://github.com/nycynik/dotFiles/wiki)
+* Check out the [wiki](https://github.com/nycynik/dotFiles/wiki)
+* Swap over to zsh
+
