@@ -8,7 +8,7 @@ export ZSH="/Users/mlynch/.oh-my-zsh"
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
-ZSH_THEME="powerlevel9k/powerlevel9k"
+ZSH_THEME="powerlevel10k/powerlevel10k"
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -56,6 +56,25 @@ ZSH_THEME="powerlevel9k/powerlevel9k"
 
 # Would you like to use another custom folder than $ZSH/custom?
 # ZSH_CUSTOM=/path/to/new-custom-folder
+
+# Custom Prompt
+POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(
+    dir
+    custom_javascript
+    vcs
+    newline
+    context
+)
+
+POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(
+    status 
+    root_indicator 
+    background_jobs 
+    history 
+    time
+)
+
+POWERLEVEL9K_PROMPT_ADD_NEWLINE=true
 
 # Which plugins would you like to load?
 # Standard plugins can be found in ~/.oh-my-zsh/plugins/*
