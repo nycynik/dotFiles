@@ -58,7 +58,7 @@ git config --global alias.last 'log -1 HEAD'
 git config --global alias.p 'pull --rebase'
 git config --global alias.type 'cat-file -t'
 git config --global alias.dump 'cat-file -p'
-git config --global alias.hist 'log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short'
+git config --global alias.hist 'log --pretty=format:"%h %ad | %s%C(auto)%d$Creset [%an]" --graph --date=short'
 git config --global core.excludesfile ~/.gitignore_global
 git config --global help.autocorrect 5
 
