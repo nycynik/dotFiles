@@ -63,8 +63,10 @@ git config --global core.excludesfile ~/.gitignore_global
 git config --global help.autocorrect 5
 
 # setup quicklook
+brew update
 brew cask install qlcolorcode qlstephen qlmarkdown quicklook-json qlprettypatch quicklook-csv betterzipql qlimagesize webpquicklook suspicious-package
 brew install jq bash
+brew install watchman
 
 
 echo "Finished Setup"
