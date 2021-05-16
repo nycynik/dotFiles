@@ -66,8 +66,10 @@ git config --global help.autocorrect 5
 brew update
 brew cask install qlcolorcode qlstephen qlmarkdown quicklook-json qlprettypatch quicklook-csv betterzipql qlimagesize webpquicklook suspicious-package
 brew install jq bash
-brew install watchman
 
+# dev tools
+brew install watchman
+brew install httpie
 
 echo "Finished Setup"
 echo .
