@@ -71,6 +71,10 @@ brew install jq bash
 brew install watchman
 brew install httpie
 
+# window tools
+brew install --cask rectangle
+
+
 echo "Finished Setup"
 echo .
 echo "You may want to remove the lic and ReadMe files from your home directory now."
