@@ -64,7 +64,8 @@ git config --global help.autocorrect 5
 
 # setup quicklook
 brew update
-brew cask install qlcolorcode qlstephen qlmarkdown quicklook-json qlprettypatch quicklook-csv betterzipql qlimagesize webpquicklook suspicious-package
+brew cask install qlcolorcode qlstephen qlmarkdown quicklook-json qlprettypatch quicklook-csv qlimagesize webpquicklook suspicious-package
+brew install betterzip
 brew install jq bash
 
 # dev tools
@@ -72,8 +73,11 @@ brew install watchman
 brew install httpie
 
 # window tools
-brew install --cask rectangle
+brew install rectangle
 
+# zsh
+brew install zsh
+sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
 echo "Finished Setup"
 echo .
