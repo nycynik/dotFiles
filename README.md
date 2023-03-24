@@ -24,5 +24,4 @@ Step2: Run the setup file and follow the prompts
 # Future Ideas
 
 * Check out the [wiki](https://github.com/nycynik/dotFiles/wiki)
-* Swap over to zsh
 
