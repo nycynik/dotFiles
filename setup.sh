@@ -71,6 +71,7 @@ brew install jq bash
 # dev tools
 brew install watchman
 brew install httpie
+brew install tree jq
 
 # window tools
 brew install rectangle
