@@ -32,3 +32,6 @@
 [delta]
 	features = line-numbers decorations
 	line-numbers = true
+
+[init]
+        defaultBranch = main

@@ -13,12 +13,12 @@ Python | Java | Node | Ruby
 Step1: Check out the repo in your home dir, that will make a hidden directory called .dotfiles in home.
 
      cd ~
-     git clone --depth=1 git@github.com:nycynik/dotFiles.git
+     git clone --depth=1 git@github.com:nycynik/dotFiles.git .dotfiles
      rm -rf ./.dotfiles/.git
      
 Step2: Run the setup file and follow the prompts
 
-     . ./setup.sh
+     . .dotfiles/setup.sh
      
 
 # Future Ideas
