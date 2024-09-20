@@ -107,6 +107,7 @@ echo Dev tools and CLI tools
 echo ----------------------------------------------------------
 
 brew install betterzip
+brew install wget
 
 # dev tools
 brew install watchman
@@ -154,8 +155,7 @@ read -p "Clean up? " -n 1 -r
 echo .
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
-	rm LICENSE
-	rm README.md
+	rm -rf "${HOME}/dotfiles"
 fi
 
 
