@@ -121,13 +121,27 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$HOMEBREW_PREFIX/opt/nvm/nvm.sh" ] && \. "$HOMEBREW_PREFIX/opt/nvm/nvm.sh" # This loads nvm
 EOT
 	nvm install --lts
+	npm install --global yarn
 fi
 
 # java
 brew install maven
 
+#python
+mkdir "$HOME/.venv"
+python -m venv "$HOME/.venv/dev"
+source "$HOME/.venv/dev/bin/activate"
+python -m pip install --upgrade pip
+brew install pipx
+pipx ensurepath
+pip install pre-commit
+
+
 # window tools
 brew install rectangle
+
+brew install eza
+alias ll='eza --icons --hyperlink -la'
 
 # xcode
 if [ -x "$(command -v xcode-select)" ]; then
