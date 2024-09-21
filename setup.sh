@@ -8,6 +8,18 @@ if [[ "${PWD}" != "${HOME}" ]] ; then
         fi
 fi
 
+# if the directory ${HOME}/.dotfiles does not exist, make it
+if [[ ! -d "${HOME}/.dotfiles" ]] ; then
+	mkdir "${HOME}/.dotfiles"
+fi
+
+# if the brew_log.log file exists in the .dotfiles dir, back it up by renaming it
+# with todays date.
+if [[ -f "${HOME}/.dotfiles/brew_log.log" ]] ; then
+	mv "${HOME}/.dotfiles/brew_log.log" "${HOME}/.dotfiles/brew_log.log.$(date +%Y%m%d)"
+fi
+touch "${HOME}/.dotfiles/brew_log.log"
+
 echo ==========================================================
 echo Global Set up
 echo ==========================================================
@@ -22,10 +34,16 @@ read USEREMAIL
 echo ----------------------------------------------------------
 echo First Time Setup
 echo ----------------------------------------------------------
-read -p "Hey $username, 📛\nAre you ready to run first time setup? " -n 1 -r
-echo .   
-if [[ ! $REPLY =~ ^[Yy]$ ]]
+echo -n "Hey $username, 👋\nAre you ready to run first time setup? (y/n) "
+read -n 1 -r response
+echo  # Move to a new line
+
+if [[ $response =~ ^[Yy]$ ]]
 then
+    echo "Great! Let's begin the setup process."
+    # Add your setup code here
+else
+    echo "Setup cancelled. You can run this script again when you're ready."
     [[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1 # handle exits from shell or function but don't exit interactive shell
 fi
 
@@ -106,18 +124,26 @@ git config --global help.autocorrect 5
 echo Dev tools and CLI tools
 echo ----------------------------------------------------------
 
-brew install betterzip
-brew install wget
-brew install stats
+# if tee is not isntalled, isntall it with brew.
+if [[ -x "$(command -v tee)" ]]; then
+	brew install tee
+fi
+
+brew install betterzip 2>&1 | tee -a "${HOME}/.dotfiles/brew_log.log"
+brew install wget 2>&1 | tee -a "${HOME}/.dotfiles/brew_log.log"
+brew install stats 2>&1 | tee -a "${HOME}/.dotfiles/brew_log.log"
 
 # dev tools
-brew install watchman
-brew install httpie
-brew install tree jq
+brew install watchman 2>&1 | tee -a "${HOME}/.dotfiles/brew_log.log"
+brew install httpie 2>&1 | tee -a "${HOME}/.dotfiles/brew_log.log"
+brew install tree jq 2>&1 | tee -a "${HOME}/.dotfiles/brew_log.log"
 
+# node
+echo node setup
+echo ------------------------------------------
 if [[ ! -d "$HOME/.nvm" ]]; then
 	mkdir ~/.nvm
-	brew install nvm
+	brew install nvm 2>&1 | tee -a "${HOME}/.dotfiles/brew_log.log"
 	cat <<EOT >> "${HOME}/.zshrc"
 export NVM_DIR="$HOME/.nvm"
 [ -s "$HOMEBREW_PREFIX/opt/nvm/nvm.sh" ] && \. "$HOMEBREW_PREFIX/opt/nvm/nvm.sh" # This loads nvm
@@ -127,9 +153,13 @@ EOT
 fi
 
 # java
-brew install maven
+echo Java setup
+echo ------------------------------------------
+brew install maven 2>&1 | tee -a "${HOME}/.dotfiles/brew_log.log"
 
-#python
+# python
+echo Python setup
+echo ------------------------------------------
 mkdir "$HOME/.venv"
 python -m venv "$HOME/.venv/dev"
 source "$HOME/.venv/dev/bin/activate"
@@ -140,13 +170,13 @@ pip install pre-commit
 
 
 # window tools
-brew install rectangle
+brew install rectangle 2>&1 | tee -a "${HOME}/.dotfiles/brew_log.log"
 
-brew install eza
+brew install eza  2>&1 | tee -a "${HOME}/.dotfiles/brew_log.log"
 alias ll='eza --icons --hyperlink -la'
 
 # xcode
-if [ -x "$(command -v xcode-select)" ]; then
+if [[ -x "$(command -v xcode-select)" ]]; then
 	xcode-select --install
 fi
 
