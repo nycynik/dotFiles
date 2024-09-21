@@ -108,6 +108,7 @@ echo ----------------------------------------------------------
 
 brew install betterzip
 brew install wget
+brew install stats
 
 # dev tools
 brew install watchman
