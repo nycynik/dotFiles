@@ -1,3 +1,8 @@
 # x11
 export DISPLAY=0:0.0
 
+# colors
+CLICOLOR=1
+LSCOLORS=ExFxCxDxBxegedabagacad
+export CLICOLOR LSCOLORS
+
