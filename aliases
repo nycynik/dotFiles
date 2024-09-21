@@ -13,10 +13,13 @@ fi
 #
 alias cp='cp -iv'                           # Make copy warn when overwriting, and be verbose
 alias mv='mv -iv'                           # Make move warn when overwriting and be verbose
+alias ducks='du -cksh * | sort -hr | head -n 15'
+                                            # List the top 15 sized folders/files in a dir
 alias mkdir='mkdir -pv'                     # Allow parent directories to be created as needed
                                             # and be verbose
 alias ls="command ls ${colorflag}"          # use colored output for ls
 alias ll="ls -FlAh ${colorflag}"            # List long - Classify files, All files, human readble
+
 alias less='less -FRX'                      # Force quit if fits on a screen, show color if in the
                                             # original file, dont clear the screen on init
 
