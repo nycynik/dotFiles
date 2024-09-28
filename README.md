@@ -20,6 +20,11 @@ Step2: Run the setup file and follow the prompts
 
      . .dotfiles/setup.sh
      
+# Updates?
+
+Notes:
+* You can add anything to the scripts directory, and it will be copied into the users bin directory.
+* You can add any aliases to aliases, and functions to functions, and they will be added to your shell by default.
 
 # Future Ideas
 
