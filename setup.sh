@@ -57,6 +57,8 @@ if [[ ! -d "$HOME/bin/" ]]; then
 	mkdir "$HOME/bin"
 fi
 
+cp -Rf ./scripts/* "$HOME/bin/"
+
 echo Homebrew setup 
 echo ----------------------------------------------------------
 which -s brew
