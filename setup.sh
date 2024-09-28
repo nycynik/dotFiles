@@ -65,8 +65,7 @@ if [[ $? != 0 ]] ; then
     ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 	echo Run brew doctor when finished.
 fi
-brew update
-brew upgrade
+brew update && brew upgrade -y
 
 echo  Setting up zsh
 echo ----------------------------------------------------------

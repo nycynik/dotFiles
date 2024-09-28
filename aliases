@@ -224,7 +224,7 @@ alias mountReadWrite='/sbin/mount -uw /'    # mountReadWrite:   For use when boo
     alias screensaverDesktop='/System/Library/Frameworks/ScreenSaver.framework/Resources/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine -background'
 
 #   ---------------------------------------
-#   8.  WEB DEVELOPMENT
+#   8.  DEVELOPMENT
 #   ---------------------------------------
 
 httpHeaders () { /usr/bin/curl -I -L $@ ; }             # httpHeaders:      Grabs headers from web page
@@ -233,6 +233,11 @@ httpHeaders () { /usr/bin/curl -I -L $@ ; }             # httpHeaders:      Grab
 #   -------------------------------------------------------------------
     httpDebug () { /usr/bin/curl $@ -o /dev/null -w "dns: %{time_namelookup} connect: %{time_connect} pretransfer: %{time_pretransfer} starttransfer: %{time_starttransfer} total: %{time_total}\n" ; }
 
+#   git related aliases
+#   ---------------------------------------------------------------------------------
+    alias gits='git status'
+    alias gitl='git log --oneline'
+    alias gitla='git log --oneline --decorate --all'
 
 #   ---------------------------------------
 #   9.  REMINDERS & NOTES
