@@ -57,6 +57,8 @@ if [[ ! -d "$HOME/bin/" ]]; then
 	mkdir "$HOME/bin"
 fi
 
+cp -Rf ./scripts/* "$HOME/bin/"
+
 echo Homebrew setup 
 echo ----------------------------------------------------------
 which -s brew
@@ -67,7 +69,7 @@ if [[ $? != 0 ]] ; then
 fi
 brew update && brew upgrade -y
 
-echo  Setting up zsh
+echo  Setting up shell - zsh
 echo ----------------------------------------------------------
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
@@ -80,6 +82,21 @@ if [[ ! -d "${HOME}/.zshrc" ]] ; then
 	cp ./.zshrc "${HOME}/.zshrc"
 else
 cat <<EOT >> "${HOME}/.zshrc"
+if [[ -f ~/.dotfiles/aliases ]]; then
+    source ~/.dotfiles/aliases
+fi
+
+# personal functions
+if [[ -f ~/.dotfiles/functions ]]; then
+    source ~/.dotfiles/functions
+fi
+EOT
+fi
+
+if [[ ! -d "${HOME}/.bashprofile" ]] ; then
+	cp ./.bashprofile "${HOME}/.bashprofile"
+else
+cat <<EOT >> "${HOME}/.bashprofile"
 if [[ -f ~/.dotfiles/aliases ]]; then
     source ~/.dotfiles/aliases
 fi
