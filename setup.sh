@@ -99,12 +99,13 @@ if [[ -z "$choice" ]]; then
     echo "Proceeding with the default detected OS: $detected_os"
     selected_os=$detected_os
 elif [[ "$choice" =~ ^[1-3]$ ]]; then
-    echo "You chose option $choice"
-    selected_os=$(case $choice in
-        1) echo "WSL";;
-        2) echo "Ubuntu";;
-        3) echo "OSX";;
-    esac)
+    colorful_echo "You chose option ${BLUE}${choice}"
+    declare -A os_types=(
+        [1]="WSL"
+        [2]="Ubuntu"
+        [3]="OSX"
+    )
+    selected_os=${os_types[$choice]}
 elif [[ "$choice" == "4" ]]; then
     echo "${YELLOW}Exiting without making any changes. Have a nice day!"
     exit 0
