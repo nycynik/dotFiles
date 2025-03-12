@@ -1,16 +1,16 @@
 #!/bin/bash
 
 # Let's get some fun color and stuff!
-if [[ -f ~/scripts/prettyfmt.sh ]]; then
-    source ~/scripts/prettyfmt.sh
+if [[ -f "${HOME}/scripts/prettyfmt.sh" ]]; then
+    source "${HOME}/scripts/prettyfmt.sh"
 else
     echo "⛔ Could not find ~/scripts/prettyfmt.sh. Exiting..."
     exit 1
 fi
 
 # get the functions
-if [[ -f ~/.dotfiles/functions ]]; then
-    source ~/.dotfiles/functions
+if [[ -f "${HOME}/.dotfiles/functions" ]]; then
+    source "${HOME}/.dotfiles/functions"
 else
     echo "⛔ Could not find ~/.dotfiles/functions. Exiting..."
     exit 1
@@ -22,7 +22,7 @@ draw_a_line "LINE"
 
 sudo apt update && sudo apt upgrade -y
 
-command_exists htop || brew install htop 2>&1 | tee -a "${brew_log}"
+command_exists htop || brew install htop 2>&1 | tee -a "${brew_log:?}"
 
 # # dart
 # if ! command_exists dart; then

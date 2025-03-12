@@ -1,8 +1,9 @@
-
+#!/bin/bash
+# shellcheck disable=SC2034  # Unused variables used in other scripts
 # ---------------------------------------------------------
 #  Colors
 # ---------------------------------------------------------
-# Colors for printing 
+# Colors for printing
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 CYAN='\033[0;36m'
@@ -64,7 +65,7 @@ draw_box_line() {
     local right_char=$5
     local draw_box=${6:-true}
     local box_width=$((width - 2))
-    
+
     if [ "$draw_box" = true ]; then
         printf "${bg_color}%s%s%s${NC}\n" \
             "$left_char" \
@@ -72,7 +73,7 @@ draw_box_line() {
             "$right_char"
     else
         printf "${bg_color}%s${NC}\n" \
-            "$(repeat_char "$center_char" $((box_width)))" 
+            "$(repeat_char "$center_char" $((box_width)))"
     fi
 }
 
@@ -90,7 +91,7 @@ get_box_chars() {
 
 # Function to draw a box with either FULL or LINE characters
 # Usage: draw_box <BoxType> <Title>
-draw_box() { 
+draw_box() {
     local box_type=${1:-"FULL"}
     local title=${2:-""}
     local draw_box=${3:-true}
@@ -99,7 +100,6 @@ draw_box() {
     local width=$BOX_WIDTH
     local height=$HEIGHT
     local box_width=$((width - 2))
-    local box_height=$((height - 2))
 
     # Set box characters based on box type
     IFS=',' read -r -a box_chars <<< "$(get_box_chars "$box_type")"
@@ -128,7 +128,7 @@ draw_a_line() {
     local bg_color=${2:-${CYAN}}
     local box_chars
 
-    IFS=',' read -r -a box_chars <<< "$(get_box_chars "$box_type")" 
+    IFS=',' read -r -a box_chars <<< "$(get_box_chars "$box_type")"
 
     draw_box_line "$width" "$bg_color" "${box_chars[6]}" "${box_chars[7]}" "${box_chars[8]}" "false"
 }
@@ -152,7 +152,7 @@ draw_sub_title() {
     local width=$BOX_WIDTH
     local box_width=$((width - 2))
 
-    IFS=',' read -r -a box_chars <<< "$(get_box_chars "$box_type")" 
+    IFS=',' read -r -a box_chars <<< "$(get_box_chars "$box_type")"
 
     printf "$bg_color%s%s%s${NC}\n" "${box_chars[4]}" "$(center_text "$title" $((box_width - 2)))" "${box_chars[5]}"
 
@@ -161,10 +161,10 @@ draw_sub_title() {
 # Function to repeat a character
 # Usage: repeat_char <Character> <Count>
 repeat_char() {
-    printf "%0.s$1" $(seq 1 $2)
+    printf "%0.s$1" $(seq 1 "$2")
 }
 
-# center text 
+# center text
 # Usage: center_text <Text> <Width>
 center_text() {
     local text="$1"
@@ -176,5 +176,5 @@ center_text() {
 # Colorful echo is a shortcut to drawing a colored line of text
 # Usage: colorful_echo <Text>
 function colorful_echo() {
-  echo -e "$@${NC}"
+  echo -e "$@" "${NC}"
 }

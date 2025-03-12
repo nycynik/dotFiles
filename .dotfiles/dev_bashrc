@@ -10,5 +10,3 @@
 export VIRTUAL_ENV_DISABLE_PROMPT="skip"
 
 source ~/.dotfiles/dev_prompt.sh
-
-
