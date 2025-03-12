@@ -1,18 +1,35 @@
 
-# Colors for printing (mostly skippable)
+# ---------------------------------------------------------
+#  Colors
+# ---------------------------------------------------------
+# Colors for printing 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 CYAN='\033[0;36m'
 YELLOW='\033[0;33m'
 BLUE='\033[0;34m'
 PURPLE='\033[0;35m'
+WHITE='\033[0;37m'
+# Background colors
+On_Red='\033[41m'         # Red
+On_Cyan='\033[46m'        # Cyan
+On_Blue='\033[44m'        # Blue
+On_Black='\033[40m'       # Black
+On_White='\033[47m'       # White
+On_Green='\033[42m'       # Green
+On_Yellow='\033[43m'      # Yellow
+On_Purple='\033[45m'      # Purple
+On_Gray='\033[100m'       # Gray
+# Text formatting
 BOLD='\033[1m'
 UNDERLINE='\033[4m'
 ITALIC='\033[3m'
 # Reset color
 NC='\033[0m' # No Color
-On_Cyan='\033[46m'        # Cyan
-On_Blue='\033[44m'        # Blue
+
+# ---------------------------------------------------------
+#  Boxes
+# ---------------------------------------------------------
 # Box dimensions
 BOX_WIDTH=60
 HEIGHT=5
@@ -36,19 +53,6 @@ BOX_FULL_BOTTOM_LEFT=" "
 BOX_FULL_BOTTOM_RIGHT=" "
 BOX_FULL_VERTICAL_LEFT=" "
 BOX_FULL_VERTICAL_RIGHT=" "
-
-# Function to repeat a character
-repeat_char() {
-    printf "%0.s$1" $(seq 1 $2)
-}
-
-# center text 
-center_text() {
-    local text="$1"
-    local width="$2"
-    local padding=$(( (width - ${#text}) / 2 ))
-    printf "%*s%s%*s" "$padding" "" "$text" "$((width - padding - ${#text}))" ""
-}
 
 # draw box line
 # Usage: draw_box_line <Width> <BgColor> <left> <center> <right>
@@ -90,12 +94,12 @@ draw_box() {
     local box_type=${1:-"FULL"}
     local title=${2:-""}
     local draw_box=${3:-true}
+    local bg_color=${4:-$On_Blue}
     local box_chars
     local width=$BOX_WIDTH
     local height=$HEIGHT
     local box_width=$((width - 2))
     local box_height=$((height - 2))
-    local bg_color=$On_Blue
 
     # Set box characters based on box type
     IFS=',' read -r -a box_chars <<< "$(get_box_chars "$box_type")"
@@ -116,26 +120,8 @@ draw_box() {
     draw_box_line "$width" "$bg_color" "${box_chars[6]}" "${box_chars[7]}" "${box_chars[8]}" "$draw_box"
 }
 
-draw_title() {
-    local title="$2"
-    draw_box "LINE" "$title"
-}
-
-draw_sub_title() {
-    local box_type=${1:-"FULL"}
-    local title="$2"
-    local box_chars
-    local width=$BOX_WIDTH
-    local box_width=$((width - 2))
-
-    IFS=',' read -r -a box_chars <<< "$(get_box_chars "$box_type")" 
-
-    printf "${On_Cyan}%s%s%s${NC}\n" "${box_chars[4]}" "$(center_text "$title" $((box_width - 2)))" "${box_chars[5]}"
-
-}
-
 # draw a single line, this is pretty much <HR>
-# usage: draw_a_line <BoxType> <BgColor>
+# usage: draw_a_line <BoxType FULL|LINE> <BgColor>
 draw_a_line() {
     local width=$BOX_WIDTH
     local box_type=${1:-'FULL'}
@@ -145,4 +131,50 @@ draw_a_line() {
     IFS=',' read -r -a box_chars <<< "$(get_box_chars "$box_type")" 
 
     draw_box_line "$width" "$bg_color" "${box_chars[6]}" "${box_chars[7]}" "${box_chars[8]}" "false"
+}
+
+# ---------------------------------------------------------
+#  Draw Text
+# ---------------------------------------------------------
+# Draw a title
+# Usage: draw_title <Title>
+draw_title() {
+    local title="$1"
+    local bg_color=${2:-$On_Black}
+    draw_box "LINE" "$title" "true" "$bg_color"
+}
+
+draw_sub_title() {
+    local title="$1"
+    local box_type=${2:-"FULL"}
+    local bg_color=${3:-$On_Black}
+    local box_chars
+    local width=$BOX_WIDTH
+    local box_width=$((width - 2))
+
+    IFS=',' read -r -a box_chars <<< "$(get_box_chars "$box_type")" 
+
+    printf "$bg_color%s%s%s${NC}\n" "${box_chars[4]}" "$(center_text "$title" $((box_width - 2)))" "${box_chars[5]}"
+
+}
+
+# Function to repeat a character
+# Usage: repeat_char <Character> <Count>
+repeat_char() {
+    printf "%0.s$1" $(seq 1 $2)
+}
+
+# center text 
+# Usage: center_text <Text> <Width>
+center_text() {
+    local text="$1"
+    local width="$2"
+    local padding=$(( (width - ${#text}) / 2 ))
+    printf "%*s%s%*s" "$padding" "" "$text" "$((width - padding - ${#text}))" ""
+}
+
+# Colorful echo is a shortcut to drawing a colored line of text
+# Usage: colorful_echo <Text>
+function colorful_echo() {
+  echo -e "$@${NC}"
 }
