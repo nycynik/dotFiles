@@ -1,4 +1,4 @@
-function mkcd {
+mkcd () {
   if [ ! -n "$1" ]; then
     echo "Enter a directory name"
   elif [ -d $1 ]; then
@@ -8,21 +8,21 @@ function mkcd {
   fi
 }
 
-function gitclone {
+gitclone () {
     url=$1;
     reponame=$(echo $url | awk -F/ '{print $NF}' | sed -e 's/.git$//');
     git clone $url $reponame;
     cd $reponame;
 }
 
-function gitcleanbr {
+gitcleanbr () {
   ! git branch -d `git branch --merged | grep -v '^*\\|main\\|master\\|staging\\|dev\\|develop'`
 }
 
-function listr {
+listr() {
 	local current="$1" ; for key in $(vault list "$current" | tail +3 | grep '[^/]$') ; do echo "$current${key}" ; vault read "$current${key}" ; done ; for subdir in $(vault list "$current" | tail +3 | grep '/$') ; do echo "$current${subdir}" ; listr "$current${subdir}" ; done
 }
 
-function command_exists() {
+command_exists() {
   command -v "$@" >/dev/null 2>&1
 }
