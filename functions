@@ -1,22 +1,24 @@
-mkcd () {
-  if [ ! -n "$1" ]; then
+#!/bin/bash
+
+mkcd() {
+  if [ -z "$1" ]; then
     echo "Enter a directory name"
-  elif [ -d $1 ]; then
+  elif [ -d "$1" ]; then
     echo "\`$1' already exists"
   else
-    mkdir $1 && cd $1
+    mkdir -p "$1" && cd "$1" || exit 1
   fi
 }
 
 gitclone () {
     url=$1;
-    reponame=$(echo $url | awk -F/ '{print $NF}' | sed -e 's/.git$//');
-    git clone $url $reponame;
-    cd $reponame;
+    reponame=$(echo "$url" | awk -F/ '{print $NF}' | sed -e 's/.git$//');
+    git clone "$url" "$reponame";
+    cd "$reponame" || exit;
 }
 
 gitcleanbr () {
-  ! git branch -d `git branch --merged | grep -v '^*\\|main\\|master\\|staging\\|dev\\|develop'`
+  ! git branch -d "$(git branch --merged | grep -v '^*\\|main\\|master\\|staging\\|dev\\|develop')"
 }
 
 listr() {
