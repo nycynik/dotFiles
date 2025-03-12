@@ -350,6 +350,10 @@ if ! command_exists pipx; then
     pipx ensurepath
 fi
 
+# PHP
+command_exists php || brew install php 2>&1 | tee -a "${brew_log}"
+command_exists composer || brew install composer 2>&1 | tee -a "${brew_log}"
+
 # SSH Config
 if [[ ! -d "$HOME/.ssh" ]]; then
     mkdir "$HOME/.ssh"
