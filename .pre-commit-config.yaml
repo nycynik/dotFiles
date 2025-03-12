@@ -12,3 +12,6 @@ repos:
     -   id: shellcheck
         args: ["--severity=warning"]
         files: \.sh$
+    -   id: shellcheck
+        args: ["--severity=warning"]
+        files: \functions$
