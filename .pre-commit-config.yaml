@@ -1,0 +1,5 @@
+repos:
+  - repo: https://github.com/nycynik/dotFiles
+    rev:  v2025.0.0
+    hooks:
+      - id: shellcheck
