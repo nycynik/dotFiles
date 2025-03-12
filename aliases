@@ -48,7 +48,8 @@ alias lr='ls -R | grep ":$" | sed -e '\''s/:$//'\'' -e '\''s/[^-][^\/]*\//--/g'\
 
 #   ll: Using exa 
 #   ------------------------------------------
-alias ll='eza --icons --hyperlink -la'
+alias la='eza --icons --hyperlink -la'
+alias ll='eza --icons --hyperlink -l'
 alias ls='eza --icons'
 alias lsls='command ls'
 
