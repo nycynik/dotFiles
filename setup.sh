@@ -232,8 +232,8 @@ draw_a_line "LINE"
 if ! command_exists brew; then
     # Install Homebrew
     colorful_echo "   • ${BLUE}Installing Homebrew${WHITE}."
-    ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-	output="$(brew doctor)"
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    output="$(brew doctor)"
 
 	if [[ $output == *"Your system is ready to brew."* ]]; then
 		colorful_echo "   - ${BLUE}Homebrew is healthy."
