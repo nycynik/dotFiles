@@ -1,16 +1,16 @@
 #!/bin/bash
 
 # Let's get some fun color and stuff!
-if [[ -f ~/scripts/prettyfmt.sh ]]; then
-    source ~/scripts/prettyfmt.sh
+if [[ -f "${HOME}"/scripts/prettyfmt.sh ]]; then
+    source "${HOME}"/scripts/prettyfmt.sh
 else
     echo "⛔ Could not find ~/scripts/prettyfmt.sh. Exiting..."
     exit 1
 fi
 
 # get the functions
-if [[ -f ~/.dotfiles/functions ]]; then
-    source ~/.dotfiles/functions
+if [[ -f "${HOME}"/.dotfiles/functions ]]; then
+    source "${HOME}"/.dotfiles/functions
 else
     echo "⛔ Could not find ~/.dotfiles/functions. Exiting..."
     exit 1
@@ -25,12 +25,12 @@ sudo apt update && sudo apt upgrade -y
 # java
 if ! command_exists java || ! command_exists javac; then
     echo "Installing OpenJDK..."
-    brew install --cask microsoft-openjdk 2>&1 | tee -a "${brew_log}"
-    
+    brew install --cask microsoft-openjdk 2>&1 | tee -a "${brew_log:?}"
     # After installation, you might need to link it
-    sudo ln -sfn $(brew --prefix)/opt/openjdk/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk.jdk
+    sudo ln -sfn "$(brew --prefix)"/opt/openjdk/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk.jdk
 
-    export JAVA_HOME=$(/usr/libexec/java_home -v 17)
+    JAVA_HOME=$(/usr/libexec/java_home -v 17)
+    export JAVA_HOME
 
     jenv add /Library/Java/JavaVirtualMachines/microsoft-17.jdk/Contents/Home
     jenv global 17

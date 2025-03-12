@@ -46,7 +46,7 @@ alias explorer='explorer.exe'
 #   ------------------------------------------
 alias lr='ls -R | grep ":$" | sed -e '\''s/:$//'\'' -e '\''s/[^-][^\/]*\//--/g'\'' -e '\''s/^/   /'\'' -e '\''s/-/|/'\'' | less'
 
-#   ll: Using exa 
+#   ll: Using exa
 #   ------------------------------------------
 alias la='eza --icons --hyperlink -la'
 alias ll='eza --icons --hyperlink -l'
