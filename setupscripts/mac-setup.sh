@@ -35,17 +35,35 @@ if ! command_exists java || ! command_exists javac; then
 fi
 
 # Dart
-if ! command_exists dart; then
-    colorful_echo "Installing Dart..."
-    brew tap dart-lang/dart 
-    brew install dart 2>&1 | tee -a "${brew_log}"
-fi
+# if ! command_exists dart; then
+#     colorful_echo "Installing Dart..."
+#     brew tap dart-lang/dart 
+#     brew install dart 2>&1 | tee -a "${brew_log}"
+# fi
+
+# IDEs
+command_exists code || brew install --cask visual-studio-code
+command_exists android-studio || brew install --cask android-studio
 
 # window tools
 command_exists rectangle || brew install --cask rectangle 2>&1 | tee -a "${brew_log}"
 
 # xcode
-command_exists xcode-select || xcode-select --install
+if ! command_exists xcode-select; then
+    colorful_echo "Installing Xcode..."
+    # command_exists xcode-select || xcode-select --install
+    sudo sh -c 'xcode-select -s /Applications/Xcode.app/Contents/Developer && xcodebuild -runFirstLaunch'
+    sudo xcodebuild -license
+    xcodebuild -downloadPlatform iOS
+fi
+# cocopods
+if ! command_exists pod; then
+    colorful_echo "Installing Cocoapods..."
+    sudo gem install cocoapods
+    echo 'export PATH="$HOME/.gem/bin:$PATH"' >> ~/.bash_profile
+    echo 'export PATH="$HOME/.gem/bin:$PATH"' >> ~/.zshrc    
+fi
+
 
 echo "Finished Setup"
 

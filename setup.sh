@@ -160,7 +160,7 @@ touch "${post_install_tasks}"
 # if the brew_log.log file exists in the .dotfiles dir, back it up by renaming it
 # with todays date.
 if [[ -f "${brew_log}" ]] ; then
-	mv "${brew_log}" "${HOME}/.dotfiles/brew_log.bak.$(date +%Y%m%d)"
+	mv "${brew_log}" "${HOME}/.dotfiles/logs/brew_log.bak.$(date +%Y%m%d)"
     colorful_echo " • ${BLUE}Backed up previous brew log${WHITE}."
 fi
 touch "${brew_log}"
@@ -246,6 +246,12 @@ if [[ ! -d "$HOME/.gitignore_global" ]]; then
 	cat ./gitignore_global >> "$HOME/.gitignore_global"
 fi
 
+if [[ ! -d "$HOME/.git-hooks" ]]; then
+    mkdir "$HOME/.git-hooks"
+    cp ./pre-commit "$HOME/.git-hooks/pre-commit"
+    chmod +x "$HOME/.git-hooks/pre-commit"
+fi
+
 git config --global core.editor nano
 git config --global alias.co checkout
 git config --global alias.br branch
@@ -257,8 +263,12 @@ git config --global alias.p 'pull --rebase'
 git config --global alias.type 'cat-file -t'
 git config --global alias.dump 'cat-file -p'
 git config --global alias.hist 'log --pretty=format:"%h %ad | %s%C(auto)%d$Creset [%an]" --graph --date=short'
+
 git config --global core.excludesfile ~/.gitignore_global
+git config --global init.defaultBranch main  
+git config --global core.hooksPath ~/.git-hooks
 git config --global help.autocorrect 5
+git config --global init.defaultBranch main
 git config --global user.name "$USERNAME"
 git config --global user.email "$USEREMAIL"
 
@@ -287,16 +297,17 @@ draw_a_line "LINE"
 draw_sub_title "Setting up JavaScript" "${On_Gray}"
 draw_a_line "LINE"
 
-if ! command_exists node; then
-	mkdir ~/.nvm
-	brew install node 2>&1 | tee -a "${brew_log}"
+command_exists node || brew install node 2>&1 | tee -a "${brew_log}"
+if ! command_exists nvm; then
+
+	mkdir -p ~/.nvm
+	brew install nvm 2>&1 | tee -a "${brew_log}"
 
    	cat <<EOT >> "${HOME}/.zshrc"
 export NVM_DIR="$HOME/.nvm"
 [ -s "$HOMEBREW_PREFIX/opt/nvm/nvm.sh" ] && \. "$HOMEBREW_PREFIX/opt/nvm/nvm.sh" # This loads nvm
 EOT
 	nvm install --lts
-	npm install --global yarn
 fi
 command_exists pnpm || brew install pnpm 2>&1 | tee -a "${brew_log}"
 
@@ -332,13 +343,12 @@ if [[ ! -d "$HOME/.venv" ]]; then
     uv python install 3.12
     uv venv "$HOME/.venv/dev"
     source "$HOME/.venv/dev/bin/activate"
+    command_exists pre-commit || uv  install pre-commit
 fi
 if ! command_exists pipx; then
     brew install pipx 2>&1 | tee -a "${brew_log}"
     pipx ensurepath
 fi
-command_exists pre-commit || pipx install -g pre-commit
-
 
 # SSH Config
 if [[ ! -d "$HOME/.ssh" ]]; then
@@ -367,6 +377,32 @@ case $selected_os in
         ;;
 esac
 
+# Post machine specific stuff
+draw_a_line "LINE"
+draw_sub_title "Post OS Install setup" "${On_Gray}"
+draw_a_line "LINE"
+
+# Dart & Flutter
+flutter doctor
+echo "## Dart and Flutter Setup" >> "$post_install_tasks"
+if ! command_exists fvm; then
+    colorful_echo "Installing FVM..."
+    sh -c "$(curl -fsSL https://fvm.app/install.sh)"
+
+    brew tap leoafarias/fvm
+    brew install fvm 2>&1 | tee -a "${brew_log}"
+    echo "Run fvm flutter doctor to ensure flutter is working" >> "$post_install_tasks"
+    echo "Verify the simulator works via 'open -a Simulator' for mac or Android Studio for Android" >> "$post_install_tasks"
+    mkdir -p ~/.fvm
+    fvm install stable
+    fvm global stable
+    echo 'export PATH="$HOME/.fvm/bin:$PATH"' >> ~/.bash_profile
+    echo 'export PATH="$HOME/.fvm/bin:$PATH"' >> ~/.zshrc
+    echo "You may want to install more versions of the Dart/Flutter SDK, via fvm install <version>" >> "$post_install_tasks"
+    fvm use stable
+    fvm flutter doctor --android-licenses
+fi
+#command_exists flutter || brew install flutter 2>&1 | tee -a "${brew_log}"
 
 draw_a_line "LINE"
 draw_sub_title "🎉 Setup complete! Have a great day! 🎉" "${On_Gray}"
