@@ -83,11 +83,11 @@ Java development uses [jenv](https://github.com/jenv/jenv) for SDK management. J
 
 [Apache Maven](https://maven.apache.org/) (mvn) is included for project management. [Gradle](https://gradle.org/) is also installed as some projects use this or mvn, so both are added. Gradle may be the future, but maven is still used on some of my projects.
 
-# PHP
+## PHP
 
 [PHP](https://www.php.net/) is most commonly associated for me with WordPress, but there are lots of reasons PHP is popular. PHP 8 is installed, as well as composer.  [Composer](https://getcomposer.org/) is a dependecy manager for PHP.
 
-# Python
+## Python
 
 Python development is supported by [uv](https://github.com/astral-sh/uv). This is a combination tool that replaces pip, pipx, pyenv, and virtualenv. That is a lot of tools, and so it's a bit more complex than some other tools, however it's so fast (written in Rust) and once you get the hang of it, you are going to love it.
 
