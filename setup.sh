@@ -417,7 +417,7 @@ install_brew_package "jq"
 install_brew_package "eza"
 
 {
-    echo "## Dev Tools Setup" 
+    echo "## Dev Tools Setup"
     echo "Add vscode to the command line. Launch vscode, c-a-P 'term' and then click add it. If there are any issues, you may need to remove /usr/bin/local/code first." >> "$post_install_tasks"
 
 } >> "$post_install_tasks"
