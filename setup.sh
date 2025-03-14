@@ -168,14 +168,6 @@ if [[ ! -d "${HOME}/.dotfiles/logs" ]] ; then
     colorful_echo " • ${BLUE}Created logs folder${WHITE}."
 fi
 
-# if the brew_log.log file exists in the .dotfiles dir, back it up by renaming it
-# with todays date.
-if [[ -f "${brew_log}" ]] ; then
-	mv "${brew_log}" "${HOME}/.dotfiles/logs/brew_log.bak.$(date +%Y%m%d)"
-    colorful_echo " • ${BLUE}Backed up previous brew log${WHITE}."
-fi
-touch "${brew_log}"
-
 if [[ ! -d "$HOME/bin/" ]]; then
 	mkdir "$HOME/bin"
     colorful_echo "   • ${BLUE}Created bin folder${WHITE}.\n"
@@ -188,8 +180,8 @@ if [[ ! -d "${HOME}/scripts/" ]]; then
 fi
 
 # ensure bash profile and zshrc exist, they should
-if [[ ! -f "${bashprofile}" ]] ; then
-    colorful_echo "   • ${BLUE}Created ${GREEN}${bashprofile}${WHITE}."
+if [[ ! -f "${HOME}/.bash_profile" ]] ; then
+    colorful_echo "   • ${BLUE}Created ${GREEN}${HOME}/.bash_profile${WHITE}."
 	cp ./bash_profile ~/.bash_profile
 fi
 if [[ ! -f "${HOME}/.zshrc" ]] ; then
@@ -250,6 +242,7 @@ if [[ ! -f "$HOME/.ssh/id_ed25519" ]]; then
     ssh-add ~/.ssh/id_ed25519
     colorful_echo "   • ${BLUE}Created ${GREEN}~/.ssh/id_rsa${WHITE}."
 fi
+
 if [[ ! -f "$HOME/.ssh/github_key" ]]; then
     ssh-keygen -t ed25519 -C "$USEREMAIL" -f "$HOME/.ssh/github_key"
     ssh-add ~/.ssh/github_key
@@ -288,7 +281,7 @@ else
 fi
 brew update && brew upgrade
 post_install_instructions "Homebrew" "You may need to open a new terminal for some settings to take effect."
-post_install_instructions "Homebrew" "You should review the brew installation logs at $brew_log."
+post_install_instructions "Homebrew" "You should review the brew installation logs at $(brew_get_brew_log_path)"
 post_install_instructions "Homebrew" "brew doctor was run, and you are ready to brew, but you may want to run it again and see if there were any warnings or to-dos."
 # if tee is not isntalled, isntall it with brew.
 if ! command_exists tee; then
@@ -350,6 +343,7 @@ install_brew_package "httpie"
 install_brew_package "tree"
 install_brew_package "jq"
 install_brew_package "eza"
+install_brew_package "shellcheck"
 
 add_post_install_instructions "Dev Tools Setup" "Add vscode to the command line. Launch vscode, c-a-P 'term' and then click add it. If there are any issues, you may need to remove /usr/bin/local/code first."
 
@@ -365,13 +359,13 @@ if ! command_exists fvm; then
     sh -c "$(curl -fsSL https://fvm.app/install.sh)"
 
     brew tap leoafarias/fvm
-    brew install fvm 2>&1 | tee -a "${brew_log}"
+    install_brew_package "fvm"
     add_post_install_instructions "Dart and Flutter" "Run fvm flutter doctor to ensure flutter is working"
     add_post_install_instructions "Dart and Flutter" "Verify the simulator works via 'open -a Simulator' for mac or Android Studio for Android"
     mkdir "${HOME}/.fvm"
     fvm install stable
     fvm global stable
-    add_config_to_shells "${marker}-DART" "export PATH='$HOME/.fvm/bin:$PATH'"
+    add_config_to_shells "DART" "export PATH='$HOME/.fvm/bin:$PATH'"
     add_post_install_instructions "Dart and Flutter" "You may want to install more versions of the Dart/Flutter SDK, via fvm install <version>"
     fvm use stable
     fvm flutter doctor --android-licenses
@@ -390,7 +384,7 @@ if ! command_exists nvm ; then
 	mkdir -p "${HOME}/.nvm"
 	install_brew_package "nvm"
 fi
-add_config_to_shells "${marker}-NVM" <<'EOF'
+add_config_to_shells "NVM" <<'EOF'
     export NVM_DIR="~/.nvm"
     [ -s "$HOMEBREW_PREFIX/opt/nvm/nvm.sh" ] && source "$HOMEBREW_PREFIX/opt/nvm/nvm.sh" # This loads nvm
 EOF

@@ -61,6 +61,16 @@ post_install_instructions "Ruby" "You may want to install bundler. Run 'gem inst
 if [[ ! -d "/Applications/Visual Studio Code.app" ]]; then
     install_brew_package "visual-studio-code"
 fi
+# TODO: Add extensions or log in and sync
+# TODO: Add settings.json manipulations
+# TODO: Workspace settings - add "terminal.integrated.defaultProfile.linux": "bash", "terminal.integrated.defaultProfile.windows": "Git Bash", // or another bash-like shell in Windows "terminal.integrated.defaultProfile.osx": "bash"
+
+# Intellij
+# if [[ ! -d "/Applications/IntelliJ IDEA.app" ]]; then
+#     install_brew_package "intellij-idea"
+# fi
+
+# Android Studio
 if [[ ! -d "/Applications/Android Studio.app" ]]; then
     install_brew_package "android-studio"
 fi
@@ -84,6 +94,8 @@ if ! command_exists pod; then
     add_config_to_shells "COCOAPODS" <<'EOF'
 export PATH="~/.gem/bin:$PATH"
 EOF
+
+fi
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 colorful_echo "   • ${GREEN}Finished MacOS Setup${WHITE}."

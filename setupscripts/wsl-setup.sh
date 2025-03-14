@@ -50,7 +50,6 @@ fi
 
 post_install_instructions "SSH Agent" "Add your ssh keys to the keychain by running 'ssh-add -K ~/.ssh/<id>'"
 
-
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # end
 colorful_echo "   • ${GREEN}Finished WSL/Ubuntu Setup${WHITE}."

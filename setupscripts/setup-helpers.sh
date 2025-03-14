@@ -27,6 +27,7 @@ add_config_to_shells() {
     # Prepare config content with ${HOME} expanded
     eval "temp_content=\"$config_content\""
 
+    # shellcheck disable=SC2154
     for config_file in "${config_files[@]}"; do
         if ! grep -q "$marker" "$config_file"; then
             {
@@ -56,6 +57,9 @@ EOF
 brew_log="${brew_log:-"${HOME}/.dotfiles/logs/brew_log_$(date +%Y%m%d).log"}"
 [[ -d "${HOME}/.dotfiles/logs" ]] || mkdir -p "${HOME}/.dotfiles/logs"
 touch "${brew_log}"
+brew_get_brew_log_path() {
+    echo "${brew_log}"
+}
 brew_exists() {
   brew ls --versions "$1" &> /dev/null || brew ls --versions "$1" --cask &> /dev/null
 }

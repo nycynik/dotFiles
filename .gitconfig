@@ -7,7 +7,7 @@
   ci = commit -S
   cia = commit -Sa
   cd = commit -S --amend
-  cad = commit -S --amend
+  cad = commit -S --amend --no-edit
   #
   co = checkout
   #
