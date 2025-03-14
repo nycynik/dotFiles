@@ -367,7 +367,6 @@ draw_a_line "LINE"
 draw_sub_title "Setting up Git"
 draw_a_line "LINE"
 
-# echo "## Git Setup" >> "$post_install_tasks"
 install_brew_package "git"
 if [[ ! -f "$HOME/.gitconfig" ]]; then
 	cp ./.gitconfig "$HOME/.gitconfig"
@@ -417,6 +416,12 @@ install_brew_package "tree"
 install_brew_package "jq"
 install_brew_package "eza"
 
+{
+    echo "## Dev Tools Setup" 
+    echo "Add vscode to the command line. Launch vscode, c-a-P 'term' and then click add it. If there are any issues, you may need to remove /usr/bin/local/code first." >> "$post_install_tasks"
+
+} >> "$post_install_tasks"
+
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # Flutter
 draw_a_line "LINE"
@@ -433,7 +438,7 @@ if ! command_exists fvm; then
     brew install fvm 2>&1 | tee -a "${brew_log}"
     echo "Run fvm flutter doctor to ensure flutter is working" >> "$post_install_tasks"
     echo "Verify the simulator works via 'open -a Simulator' for mac or Android Studio for Android" >> "$post_install_tasks"
-    mkdir -p ~/.fvm
+    mkdir "${HOME}/.fvm"
     fvm install stable
     fvm global stable
     echo "export PATH='$HOME/.fvm/bin:$PATH'" >> ~/.bash_profile
@@ -453,7 +458,7 @@ draw_a_line "LINE"
 
 install_brew_package "node"
 if ! command_exists nvm ; then
-	mkdir -p ~/.nvm
+	mkdir -p "${HOME}/.nvm"
 	install_brew_package "nvm"
 fi
 if ! grep -q "${marker}-NVM" "$zshrc"; then
