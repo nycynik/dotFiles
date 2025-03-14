@@ -72,6 +72,11 @@ if ! command_exists xcode-select; then
     sudo xcodebuild -license
     xcodebuild -downloadPlatform iOS
 fi
+if [[ ! -d "/Applications/DBeaver.app" ]]; then
+    colorful_echo "Installing DBeaver..."
+    brew install --cask dbeaver-community 2>&1 | tee -a "${brew_log}"
+fi
+
 
 # cocopods
 if ! command_exists pod; then
