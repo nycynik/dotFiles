@@ -18,7 +18,7 @@ original_dir=$(pwd)
 username=""
 email=""
 
-# if git exists, we can load the username and email from there. 
+# if git exists, we can load the username and email from there.
 if command_exists git; then
     username=$(git config --global user.name)
     email=$(git config --global user.email)
@@ -351,7 +351,7 @@ install_brew_package "tree"
 install_brew_package "jq"
 install_brew_package "eza"
 
-add_post_install_instructions "Dev Tools Setup" "Add vscode to the command line. Launch vscode, c-a-P 'term' and then click add it. If there are any issues, you may need to remove /usr/bin/local/code first." 
+add_post_install_instructions "Dev Tools Setup" "Add vscode to the command line. Launch vscode, c-a-P 'term' and then click add it. If there are any issues, you may need to remove /usr/bin/local/code first."
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # Flutter
@@ -433,10 +433,10 @@ get_jdk_installation_path() {
         "WSL")
             echo "/usr/lib/jvm" ;; # Typical JDK installation path on Linux
         "Ubuntu")
-            echo "/usr/lib/jvm" ;; 
+            echo "/usr/lib/jvm" ;;
         "OSX")
             echo "/Library/Java/JavaVirtualMachines" ;;
-        *) 
+        *)
             echo "/usr/lib/jvm" &;; # should never hit this.
     esac
 }

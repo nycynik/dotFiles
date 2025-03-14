@@ -30,7 +30,7 @@ if ! command_exists java || ! command_exists javac; then
 
     install_brew_package "microsoft-openjdk"
 
-    # After installation add to jEnv 
+    # After installation add to jEnv
     jenv add /Library/Java/JavaVirtualMachines/microsoft-17.jdk/Contents/Home
 
     add_post_install_instructions "Java" "Microsoft Java installed, but not set to default. To set it as default use 'jenv global 17'"

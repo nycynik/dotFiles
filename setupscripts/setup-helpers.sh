@@ -7,9 +7,9 @@
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # Add config to Shell
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
-# Add config to multiple shells. Hard coded now to zshrc and bash_profile, but you can add more 
+# Add config to multiple shells. Hard coded now to zshrc and bash_profile, but you can add more
 # if/when we get to the next shell. I always like to maintain bash, even though I primarly
-# use zsh, becuase So many script files are /bin/bash. 
+# use zsh, becuase So many script files are /bin/bash.
 # This just makes my life more reasonable.
 #
 # Usage:
@@ -48,9 +48,9 @@ EOF
 # Brew helper functions for installation
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # This set of functions simplifies the installation of brew packages. It handles both --cask and
-# regular brew packages. If the package is already installed, it's skipped and a note of that is shown 
+# regular brew packages. If the package is already installed, it's skipped and a note of that is shown
 # to the user. Otherwise it installs the package and logs it to the brew_log file.
-# 
+#
 # Usage:
 #   install_brew_package "package_name"
 brew_log="${brew_log:-"${HOME}/.dotfiles/logs/brew_log_$(date +%Y%m%d).log"}"
@@ -93,7 +93,7 @@ install_brew_package() {
 # plugins list in the .zshrc file.
 #
 # Usage:
-#   install_zsh_plugin "repo_url" 
+#   install_zsh_plugin "repo_url"
 install_zsh_plugin() {
     local repo_url="$1"
     local plugin_name
@@ -148,7 +148,7 @@ add_post_install_instructions() {
         post_install_instructions[$group_name]="${post_install_instructions[$group_name]}\n$instructions"
     fi
 }
-# function that writes out the instructions to the file that is used to show 
+# function that writes out the instructions to the file that is used to show
 # them, and is the record for later. It writes out the instructions, the groups show in alphabetical order
 # and instructions show in the order they were added.
 write_post_install_instructions() {

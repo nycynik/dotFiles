@@ -26,4 +26,3 @@ post_install_instructions "SSH Agent" "Add your ssh keys to the keychain by runn
 # all done
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 colorful_echo "   • ${GREEN}Finished Linux Setup${WHITE}."
-
