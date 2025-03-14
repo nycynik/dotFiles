@@ -1,72 +1,28 @@
 #!/bin/bash
 
-# global functions
-if [[ -f functions ]]; then
-    # shellcheck source=functions
-    source functions
-else
-    echo "⛔ Could not find functions. Exiting..."
-    exit 1
-fi
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
+# Functions
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
+[[ -f ./setupscripts/addfunctions.sh ]] && source ./setupscripts/addfunctions.sh || {
+    echo "setup-helpers.sh not found"
+    exit 199
+}
 
 showScreen() {
   clear
   draw_title "Welcome to your new home setup!"
 }
 
-# zsh plugins
-install_zsh_plugin() {
-    local repo_url="$1"
-    local plugin_name
-    plugin_name=$(basename "$repo_url" .git)  # Extracts repo name from URL
-    local plugin_dir="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/$plugin_name"
-    local zshrc="$HOME/.zshrc"
-
-    # Clone the plugin if it's missing
-    if [[ ! -d "$plugin_dir" ]]; then
-        colorful_echo "   • ${BLUE}Installing $plugin_name${WHITE}."
-        git clone --depth 1 "$repo_url" "$plugin_dir"
-    else
-        colorful_echo "   • ${YELLOW}$plugin_name already installed, skipping${WHITE}."
-    fi
-
-    # Enable the plugin in .zshrc if not already enabled
-    if ! grep -qE "plugins=.*\b$plugin_name\b" "$zshrc"; then
-        sed -i '' -E "s/(^plugins=\([^)]*)\)/\1 $plugin_name)/" "$zshrc"
-        colorful_echo "   • ${GREEN}Added ${plugin_name} to plugins in .zshrc${WHITE}."
-    fi
-}
-
-# brew installs
-brew_exists() {
-  brew ls --versions "$1" &> /dev/null || brew ls --versions "$1" --cask &> /dev/null
-}
-install_brew_package() {
-    local package_name="$1"
-
-    if ! brew_exists "$package_name"; then
-        brew install "$package_name" 2>&1 | tee -a "${brew_log}"
-    else
-        colorful_echo "   • ${YELLOW}$package_name already installed, skipping${WHITE}."
-    fi
-}
-
 # global variables
 original_dir=$(pwd)
-zshrc="${HOME}/.zshrc"
-bashprofile="${HOME}/.bash_profile"
-marker="# DOTFILES - DO NOT REMOVE THIS LINE"
 username=""
 email=""
+
+# if git exists, we can load the username and email from there. 
 if command_exists git; then
     username=$(git config --global user.name)
     email=$(git config --global user.email)
 fi
-post_install_tasks="${HOME}/.dotfiles/logs/post_install_tasks_$(date +%Y%m%d).log"
-brew_log="${HOME}/.dotfiles/logs/brew_log_$(date +%Y%m%d).log"
-
-export post_install_tasks
-export brew_log
 
 ## ---------------------------
 ## Main script
@@ -212,12 +168,6 @@ if [[ ! -d "${HOME}/.dotfiles/logs" ]] ; then
     colorful_echo " • ${BLUE}Created logs folder${WHITE}."
 fi
 
-# Create the post install tasks file if it doesn't exist
-if [[ -f "${post_install_tasks}" ]] ; then
-	mv "${post_install_tasks}" "${post_install_tasks}.$(date +%Y%m%d)"
-fi
-touch "${post_install_tasks}"
-
 # if the brew_log.log file exists in the .dotfiles dir, back it up by renaming it
 # with todays date.
 if [[ -f "${brew_log}" ]] ; then
@@ -237,9 +187,13 @@ if [[ ! -d "${HOME}/scripts/" ]]; then
     colorful_echo "   • ${BLUE}Created scripts folder${WHITE}."
 fi
 
-# Oh My Zsh Setup
-if [[ ! -f "${zshrc}" ]] ; then
-    colorful_echo "   • ${BLUE}Created ${GREEN}${zshrc}${WHITE}."
+# ensure bash profile and zshrc exist, they should
+if [[ ! -f "${bashprofile}" ]] ; then
+    colorful_echo "   • ${BLUE}Created ${GREEN}${bashprofile}${WHITE}."
+	cp ./bash_profile ~/.bash_profile
+fi
+if [[ ! -f "${HOME}/.zshrc" ]] ; then
+    colorful_echo "   • ${BLUE}Created ${GREEN}${HOME}/.zshrc${WHITE}."
 	cp ./.zshrc "${HOME}/.zshrc"
 fi
 
@@ -269,29 +223,13 @@ install_zsh_plugin "https://github.com/marlonrichert/zsh-autocomplete.git"
 install_zsh_plugin "https://github.com/zsh-users/zsh-autosuggestions.git"
 install_zsh_plugin "https://github.com/zsh-users/zsh-syntax-highlighting.git"
 
+
+
 # add functions and aliases to shell
-if ! grep -q "${marker}-dotFiles" "$zshrc"; then
-    {
-        echo -e "\n${marker}-dotFiles"
-        echo 'if [[ -f ~/.dotfiles/aliases ]]; then source ~/.dotfiles/aliases; fi'
-        echo 'if [[ -f ~/.dotfiles/functions ]]; then source ~/.dotfiles/functions; fi'
-     } >> "$zshrc"
-    colorful_echo "   • ${BLUE}Added config to ${GREEN}${zshrc}${WHITE}."
-fi
-
-if [[ ! -f "${bashprofile}" ]] ; then
-    colorful_echo "   • ${BLUE}Created ${GREEN}${bashprofile}${WHITE}."
-	cp ./bash_profile ~/.bash_profile
-fi
-
-if ! grep -q "$marker-dotFiles" "$bashprofile"; then
-    {
-        echo -e "\n${marker}-dotFiles"
-        echo 'if [[ -f ~/.dotfiles/aliases ]]; then source ~/.dotfiles/aliases; fi'
-        echo 'if [[ -f ~/.dotfiles/functions ]]; then source ~/.dotfiles/functions; fi'
-    } >> "$bashprofile"
-    colorful_echo "   • ${BLUE}Added config to ${GREEN}${bashprofile}${WHITE}."
-fi
+add_config_to_shells "dotFiles" <<'EOF'
+    if [[ -f ~/.dotfiles/aliases ]]; then source ~/.dotfiles/aliases; fi'
+    if [[ -f ~/.dotfiles/functions ]]; then source ~/.dotfiles/functions; fi'
+EOF
 
 # SSH Config
 if [[ ! -d "$HOME/.ssh" ]]; then
@@ -313,11 +251,10 @@ if [[ ! -f "$HOME/.ssh/id_ed25519" ]]; then
     colorful_echo "   • ${BLUE}Created ${GREEN}~/.ssh/id_rsa${WHITE}."
 fi
 if [[ ! -f "$HOME/.ssh/github_key" ]]; then
-    echo "## SSH Setup" >> "$post_install_tasks"
     ssh-keygen -t ed25519 -C "$USEREMAIL" -f "$HOME/.ssh/github_key"
     ssh-add ~/.ssh/github_key
     colorful_echo "   • ${BLUE}Created ${GREEN}~/.ssh/github_key${WHITE}."
-    echo "Add your SSH keys for git to github (pbcopy < ~/.ssh/github_key on mac)" >> "$post_install_tasks"
+    add_post_install_instructions "SSH" "Add your SSH keys for git to github.com (pbcopy < ~/.ssh/github_key on mac) https://github.com/settings/keys "
     printf "\nHost github.com\n  HostName github.com\n  User git\n  IdentityFile ~/.ssh/github_key\n  IdentitiesOnly yes\n  ForwardX11 no\n" >> "${HOME}/.ssh/config"
 fi
 
@@ -350,14 +287,12 @@ else
     colorful_echo "   • ${YELLOW}Homebrew already installed, updating${WHITE}."
 fi
 brew update && brew upgrade
-{
-    echo "## Homebrew Setup"
-    echo "You should review the brew isntallation logs at $brew_log."
-    echo "You may need to open a new terminal for settings to take effect."
-} >> "$post_install_tasks"
+post_install_instructions "Homebrew" "You may need to open a new terminal for some settings to take effect."
+post_install_instructions "Homebrew" "You should review the brew installation logs at $brew_log."
+post_install_instructions "Homebrew" "brew doctor was run, and you are ready to brew, but you may want to run it again and see if there were any warnings or to-dos."
 # if tee is not isntalled, isntall it with brew.
 if ! command_exists tee; then
-	brew install tee
+	brew install tee # can't use function for this one, because function requres tee.
     colorful_echo "   • ${BLUE}Installed ${GREEN}tee${WHITE}."
 fi
 
@@ -416,11 +351,7 @@ install_brew_package "tree"
 install_brew_package "jq"
 install_brew_package "eza"
 
-{
-    echo "## Dev Tools Setup"
-    echo "Add vscode to the command line. Launch vscode, c-a-P 'term' and then click add it. If there are any issues, you may need to remove /usr/bin/local/code first." >> "$post_install_tasks"
-
-} >> "$post_install_tasks"
+add_post_install_instructions "Dev Tools Setup" "Add vscode to the command line. Launch vscode, c-a-P 'term' and then click add it. If there are any issues, you may need to remove /usr/bin/local/code first." 
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # Flutter
@@ -430,20 +361,18 @@ draw_a_line "LINE"
 
 # Dart & Flutter
 if ! command_exists fvm; then
-    echo "## Dart and Flutter Setup" >> "$post_install_tasks"
     colorful_echo "${BLUE}Installing FVM${WHITE}."
     sh -c "$(curl -fsSL https://fvm.app/install.sh)"
 
     brew tap leoafarias/fvm
     brew install fvm 2>&1 | tee -a "${brew_log}"
-    echo "Run fvm flutter doctor to ensure flutter is working" >> "$post_install_tasks"
-    echo "Verify the simulator works via 'open -a Simulator' for mac or Android Studio for Android" >> "$post_install_tasks"
+    add_post_install_instructions "Dart and Flutter" "Run fvm flutter doctor to ensure flutter is working"
+    add_post_install_instructions "Dart and Flutter" "Verify the simulator works via 'open -a Simulator' for mac or Android Studio for Android"
     mkdir "${HOME}/.fvm"
     fvm install stable
     fvm global stable
-    echo "export PATH='$HOME/.fvm/bin:$PATH'" >> ~/.bash_profile
-    echo "export PATH='$HOME/.fvm/bin:$PATH'" >> ~/.zshrc
-    echo "You may want to install more versions of the Dart/Flutter SDK, via fvm install <version>" >> "$post_install_tasks"
+    add_config_to_shells "${marker}-DART" "export PATH='$HOME/.fvm/bin:$PATH'"
+    add_post_install_instructions "Dart and Flutter" "You may want to install more versions of the Dart/Flutter SDK, via fvm install <version>"
     fvm use stable
     fvm flutter doctor --android-licenses
 else
@@ -461,21 +390,10 @@ if ! command_exists nvm ; then
 	mkdir -p "${HOME}/.nvm"
 	install_brew_package "nvm"
 fi
-if ! grep -q "${marker}-NVM" "$zshrc"; then
-    {
-        echo -e "\n${marker}-NVM"
-        echo 'export NVM_DIR="~/.nvm"'
-        echo '[ -s "$HOMEBREW_PREFIX/opt/nvm/nvm.sh" ] && \. "$HOMEBREW_PREFIX/opt/nvm/nvm.sh" # This loads nvm'
-    } >> "${HOME}/.zshrc"
-fi
-if ! grep -q "${marker}-NVM" "${HOME}/.bash_profile"; then
-    {
-        echo -e "\n${marker}-NVM"
-        echo 'export NVM_DIR="~/.nvm"'
-        echo '[ -s "$HOMEBREW_PREFIX/opt/nvm/nvm.sh" ] && \. "$HOMEBREW_PREFIX/opt/nvm/nvm.sh" # This loads nvm'
-    } >> "${HOME}/.bash_profile"
-	nvm install --lts
-fi
+add_config_to_shells "${marker}-NVM" <<'EOF'
+    export NVM_DIR="~/.nvm"
+    [ -s "$HOMEBREW_PREFIX/opt/nvm/nvm.sh" ] && source "$HOMEBREW_PREFIX/opt/nvm/nvm.sh" # This loads nvm
+EOF
 install_brew_package "pnpm"
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
@@ -484,35 +402,95 @@ draw_a_line "LINE"
 draw_sub_title "Setting up Java"
 draw_a_line "LINE"
 
-echo "## Java Setup" >> "$post_install_tasks"
-
 install_brew_package "maven"
 install_brew_package "gradle"
-{
-    echo "Add your maven settings.xml file to ~/.m2/settings.xml"
-    echo "Add your gradle settings to ~/.gradle/gradle.properties"
-    echo "Verify the JAVA_HOME is set correctly to JAVA_HOME=$JAVA_HOME"
-} >> "$post_install_tasks"
+add_post_install_instructions "Java" "Add your maven settings.xml file to ~/.m2/settings.xml"
+add_post_install_instructions "Java" "Add your gradle settings to ~/.gradle/gradle.properties"
+add_post_install_instructions "Java" "Verify the JAVA_HOME is set correctly to JAVA_HOME=$JAVA_HOME"
 
 if ! command_exists jenv ; then
     colorful_echo "   • ${BLUE}jEnv installed${WHITE}."
     install_brew_package "jenv"
-    {
-        # shellcheck disable=SC2016
-        echo 'export PATH="~/.jenv/bin:$PATH"'
-        # shellcheck disable=SC2016
-        echo 'eval "$(jenv init -)"'
-    } >> ~/.bash_profile
-    {
-        # shellcheck disable=SC2016
-        echo 'export PATH="~/.jenv/bin:$PATH"'
-        # shellcheck disable=SC2016
-        echo 'eval "$(jenv init -)"'
-    } >> ~/.zshrc
+    add_config_to_shells "jEnv" <<'EOF'
+export PATH="~/.jenv/bin:$PATH"
+eval "$(jenv init -)"
+EOF
+
+fi
+add_post_install_instructions "Java" "Add your java installations, and then add them to jEnv using use jenv add."
+
+# Ensure jEnv is installed
+if ! command_exists jenv; then
+    echo "jEnv is not installed. Please install it first."
+    exit 115
 fi
 
-echo "If you need additional java installations do so and use jenv add." >> "$post_install_tasks"
+# Function to add newly installed JDKs to jEnv
+get_jdk_installation_path() {
+    global selected_os
 
+    case $selected_os in
+        "WSL")
+            echo "/usr/lib/jvm" ;; # Typical JDK installation path on Linux
+        "Ubuntu")
+            echo "/usr/lib/jvm" ;; 
+        "OSX")
+            echo "/Library/Java/JavaVirtualMachines" ;;
+        *) 
+            echo "/usr/lib/jvm" &;; # should never hit this.
+    esac
+}
+
+# Function to add newly installed JDKs to jEnv
+add_new_jdks_to_jenv() {
+    local jdk_path
+
+    jdk_path=$(get_jdk_installation_path)
+    find "$jdk_path" -type d -name "jdk*" | while read -r path; do
+        jenv add "$path"
+    done
+}
+
+# is OpenJDK installed and managed by jEnv?
+is_openjdk_installed_jenv() {
+    local version_keyword=$1
+    jenv versions --bare | grep -q "$version_keyword"
+}
+
+# Function to set jEnv to use the newly installed OpenJDK
+set_jenv_version() {
+    # Get the installed OpenJDK directory
+    latest_jdk=$(ls -td /Library/Java/JavaVirtualMachines/jdk*.jdk | head -n 1)
+    if [ -n "$latest_jdk" ]; then
+        version_name=$(basename "$latest_jdk" .jdk)
+        jenv global "$version_name"
+        colorful_echo "   • ${GREEN}Set $version_name as the default Java version using jEnv.${WHITE}"
+    else
+        echo "Could not find installed JDK."
+        exit 112
+    fi
+}
+
+# Install OpenJDK if not already managed by jEnv
+if ! is_openjdk_installed_jenv "1\.[0-9]*" && ! is_openjdk_installed_jenv "temurin"; then
+    install_brew_package "openjdk"  # Use Homebrew to manage JDK installations
+
+    # Add installed JDKs to jEnv
+    add_new_jdks_to_jenv
+
+    # Set the latest OpenJDK as default
+    latest_version=$(jenv versions --bare | grep -E 'openjdk|temurin' | sort -V | tail -n 1)
+    if [ -n "$latest_version" ]; then
+        jenv global "$latest_version"
+        colorful_echo "   • ${GREEN}Set $latest_version as the default Java version using jEnv${WHITE}."
+    else
+        colorful_echo "   • ${RED}No OpenJDK versions detected by jEnv${WHITE}."
+        post_install_instructions "Java" "Script was unable to install OpenJDK. Please install it manually and configur jEnv."
+    fi
+else
+    colorful_echo "   • ${YELLOW}An OpenJDK version is already the default Java managed by jEnv.${WHITE}"
+fi
+post_install_instructions "Java" "This should have installed the lastest version of OpenJDK. $(java -version)"
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # Python
@@ -538,6 +516,8 @@ if ! command_exists pipx; then
     install_brew_package "pipx"
     pipx ensurepath
 fi
+add_post_install_instructions "Python" "Add your global python virtualenvs to the ~/.venv folder."
+add_post_install_instructions "Python" "Add your any additional global Python packages to the dev enviornment, is already created and set as the default upon login. use 'uv pip install <package>' when dev is active to do so."
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # PHP
@@ -547,6 +527,9 @@ draw_a_line "LINE"
 
 install_brew_package "php"
 install_brew_package "composer"
+
+add_post_install_instructions "PHP" "Add your PHP settings to ~/.php.ini"
+add_post_install_instructions "PHP" "Add your composer settings to ~/.composer/composer.json"
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # Run the os specific script
@@ -568,16 +551,9 @@ draw_a_line "LINE"
 draw_sub_title "🎉 Setup complete! Please drive through 🎉"
 draw_a_line "LINE"
 
-colorful_echo "\n${YELLOW}Post-Installation Tasks${WHITE}:"
-while IFS= read -r line; do
-    if [[ $line == \#\#* ]]; then
-        # It's a section header
-        echo -e "\n${BLUE}${line#\#\# }:${WHITE}"
-    else
-        # It's a regular item
-        echo -e "${YELLOW}  • ${WHITE}$line"
-    fi
-done < "$post_install_tasks"
+# Writes out the post instruction to dos to file, and displays them to the user.
+write_post_install_instructions
+show_post_install_tasks
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # the end.

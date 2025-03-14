@@ -1,90 +1,89 @@
 #!/bin/bash
 
-brew_log="${brew_log:-brew.log}"
-marker="# DOTFILES - DO NOT REMOVE THIS LINE"
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
+# Functions
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
+[[ -f ./setupscripts/addfunctions.sh ]] && source ./setupscripts/addfunctions.sh || {
+    echo "setup-helpers.sh not found"
+    exit 199
+}
 
-# Let's get some fun color and stuff!
-if [[ -f "${HOME}/scripts/prettyfmt.sh" ]]; then
-    source "${HOME}/scripts/prettyfmt.sh"
-else
-    colorful_echo "⛔ Could not find ${GREEN}~/scripts/prettyfmt.sh${WHITE}. ${YELLOW}Exiting${WHITE}..."
-    exit 1
-fi
 
-# load the functions
-if [[ -f "${HOME}/.dotfiles/functions" ]]; then
-    source "${HOME}/.dotfiles/functions"
-else
-    colorful_echo "⛔ Could not find ${GREEN}~/.dotfiles/functions${WHITE}. ${YELLOW}Exiting${WHITE}..."
-    exit 1
-fi
-
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
+# Main
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 draw_a_line "LINE"
 draw_sub_title "Mac OS Setup"
 draw_a_line "LINE"
 
-# tools
-brew ls --versions rectangle --cask > /dev/null || brew install --cask rectangle 2>&1 | tee -a "${brew_log}"
-brew ls --versions qlmarkdown --cask > /dev/null || brew install --cask qlmarkdown 2>&1 | tee -a "${brew_log}"
-brew ls --versions qlcolorcode --cask > /dev/null || brew install --cask qlcolorcode 2>&1 | tee -a "${brew_log}"
-
-
-# Ruby
-if ! command_exists ruby; then
-    colorful_echo "Installing Ruby..."
-    brew install ruby 2>&1 | tee -a "${brew_log:?}"
-fi
-if ! grep -q "${marker}-RUBY" ~/.zshrc ; then
-    printf "\n${marker}-RUBY\nexport PATH='/usr/local/opt/ruby/bin:\$PATH'" >> ~/.zshrc
-fi
-if ! grep -q "${marker}-RUBY" ~/.bash_profile ; then
-    printf "\n${marker}-RUBY\nexport PATH='/usr/local/opt/ruby/bin:\$PATH'" >> ~/.bash_profile
-fi
-
-# mac os dev tools and apps
-command_exists wget || brew install wget 2>&1 | tee -a "${brew_log:?}"
-
-# java
-if ! command_exists java || ! command_exists javac; then
-    echo "Installing OpenJDK..."
-    install_brew_package openjdk
-
-    # After installation, you might need to link it
-    sudo ln -sfn "$(brew --prefix)"/opt/openjdk/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk.jdk
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
+# keychain for ssh agent
+ssh-add --apple-use-keychain ~/.ssh/id_ed25519
+ssh-add --apple-use-keychain ~/.ssh/github_key
+add_config_to_shells "SSH_AGENT" <<'EOF'
+# Check if an ssh-agent is already running
+if ! pgrep -q ssh-agent; then
+  # If not, start a new ssh-agent and save the environment variables to a file
+  eval $(ssh-agent -s) > ~/.ssh/ssh-agent-vars
+  ssh-add --apple-use-keychain ~/.ssh/id_ed25519
+  ssh-add --apple-use-keychain ~/.ssh/github_key
 else
-    colorful_echo "   • ${YELLOW}Java already installed, updating${WHITE}."
+  # Otherwise, use the existing agent
+  if [[ -f ~/.ssh/ssh-agent-vars ]]; then
+    source ~/.ssh/ssh-agent-vars
+  fi
 fi
+EOF
+post_install_instructions "SSH" "Add your ssh keys to the keychain by running 'ssh-add --apple-use-keychain ~/.ssh/<id>' for any additional keys"
 
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
+# tools
+install_brew_package "rectangle"
+install_brew_package "qlmarkdown"
+install_brew_package "qlcolorcode"
+install_brew_package "wget"
+
+post_install_instructions "Tools" "Install Rectangle, QLMarkdown, QLColorCode, they are added to the Applications folder, but need to be opened and approved to use."
+
+
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
+# Ruby
+install_brew_package "ruby"
+add_config_to_shells "RUBY" <<'EOF'
+export PATH="/usr/local/opt/ruby/bin:$PATH"
+EOF
+post_install_instructions "Ruby" "Ruby is set up, this only updated the version of ruby to the latest. $(ruby -v)"
+post_install_instructions "Ruby" "You may want to install bundler. Run 'gem install bundler'"
+
+
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # IDEs
 if [[ ! -d "/Applications/Visual Studio Code.app" ]]; then
-    colorful_echo "Installing Visual Studio Code..."
-    brew install --cask visual-studio-code 2>&1 | tee -a "${brew_log}"
+    install_brew_package "visual-studio-code"
 fi
 if [[ ! -d "/Applications/Android Studio.app" ]]; then
-    colorful_echo "Installing Android Studio..."
-    brew install --cask android-studio 2>&1 | tee -a "${brew_log}"
+    install_brew_package "android-studio"
 fi
 # xcode
 if ! command_exists xcode-select; then
-    colorful_echo "Installing Xcode..."
+    colorful_echo "  Installing Xcode..."
     # command_exists xcode-select || xcode-select --install
     sudo sh -c 'xcode-select -s /Applications/Xcode.app/Contents/Developer && xcodebuild -runFirstLaunch'
     sudo xcodebuild -license
     xcodebuild -downloadPlatform iOS
 fi
 if [[ ! -d "/Applications/DBeaver.app" ]]; then
-    colorful_echo "Installing DBeaver..."
-    brew install --cask dbeaver-community 2>&1 | tee -a "${brew_log}"
+    install_brew_package "dbeaver-community"
 fi
 
-
-# cocopods
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
+# iOS/Flutter
 if ! command_exists pod; then
-    colorful_echo "Installing Cocoapods..."
+    colorful_echo "   • Installing CocoaPods${WHITE}."
     sudo gem install cocoapods
-    echo 'export PATH="~/.gem/bin:$PATH"' >> ~/.bash_profile
-    echo 'export PATH="~/.gem/bin:$PATH"' >> ~/.zshrc
-fi
+    add_config_to_shells "COCOAPODS" <<'EOF'
+export PATH="~/.gem/bin:$PATH"
+EOF
 
-
-echo "Finished Setup"
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
+colorful_echo "   • ${GREEN}Finished MacOS Setup${WHITE}."

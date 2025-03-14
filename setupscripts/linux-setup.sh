@@ -1,36 +1,29 @@
 #!/bin/bash
 
-# Let's get some fun color and stuff!
-if [[ -f "${HOME}/scripts/prettyfmt.sh" ]]; then
-    source "${HOME}/scripts/prettyfmt.sh"
-else
-    echo "⛔ Could not find ~/scripts/prettyfmt.sh. Exiting..."
-    exit 1
-fi
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
+# Functions
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
+[[ -f ./setupscripts/addfunctions.sh ]] && source ./setupscripts/addfunctions.sh || {
+    echo "setup-helpers.sh not found"
+    exit 199
+}
 
-# get the functions
-if [[ -f "${HOME}/.dotfiles/functions" ]]; then
-    source "${HOME}/.dotfiles/functions"
-else
-    echo "⛔ Could not find ~/.dotfiles/functions. Exiting..."
-    exit 1
-fi
-
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
+# Main
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 draw_a_line "LINE"
 draw_sub_title "Linux Setup"
 draw_a_line "LINE"
 
 sudo apt update && sudo apt upgrade -y
 
-command_exists htop || brew install htop 2>&1 | tee -a "${brew_log:?}"
+install_brew_package "htop"
 
-# # dart
-# if ! command_exists dart; then
-#     echo "Installing Dart..."
-#     sudo apt-get update && sudo apt-get install apt-transport-https
-#     wget -qO- https://dl-ssl.google.com/linux/linux_signing_key.pub \
-#         | sudo gpg  --dearmor -o /usr/share/keyrings/dart.gpg
-#     echo 'deb [signed-by=/usr/share/keyrings/dart.gpg arch=amd64] https://storage.googleapis.com/download.dartlang.org/linux/debian stable main' \
-#         | sudo tee /etc/apt/sources.list.d/dart_stable.list
-#     sudo apt-get update && sudo apt-get install dart
-# fi
+post_install_instructions "SSH Agent" "Add your ssh keys to the keychain by running 'ssh-add -K ~/.ssh/<id>'"
+
+
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
+# all done
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
+colorful_echo "   • ${GREEN}Finished Linux Setup${WHITE}."
+

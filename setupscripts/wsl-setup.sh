@@ -1,21 +1,16 @@
 #!/bin/bash
 
-# Let's get some fun color and stuff!
-if [[ -f "${HOME}"/scripts/prettyfmt.sh ]]; then
-    source "${HOME}"/scripts/prettyfmt.sh
-else
-    echo "⛔ Could not find ~/scripts/prettyfmt.sh. Exiting..."
-    exit 1
-fi
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
+# Functions
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
+[[ -f ./setupscripts/addfunctions.sh ]] && source ./setupscripts/addfunctions.sh || {
+    echo "setup-helpers.sh not found"
+    exit 199
+}
 
-# get the functions
-if [[ -f "${HOME}"/.dotfiles/functions ]]; then
-    source "${HOME}"/.dotfiles/functions
-else
-    echo "⛔ Could not find ~/.dotfiles/functions. Exiting..."
-    exit 1
-fi
-
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
+#   Main
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 draw_a_line "LINE"
 draw_sub_title "WSL Setup"
 draw_a_line "LINE"
@@ -24,17 +19,23 @@ sudo apt update && sudo apt upgrade -y
 
 # java
 if ! command_exists java || ! command_exists javac; then
-    echo "Installing OpenJDK..."
-    brew install --cask microsoft-openjdk 2>&1 | tee -a "${brew_log:?}"
-    # After installation, you might need to link it
-    sudo ln -sfn "$(brew --prefix)"/opt/openjdk/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk.jdk
+
+    if ! command_exists jenv; then
+        echo "jEnv is not installed. Please install it first."
+        exit 115
+    fi
 
     JAVA_HOME=$(/usr/libexec/java_home -v 17)
     export JAVA_HOME
 
+    install_brew_package "microsoft-openjdk"
+
+    # After installation add to jEnv 
     jenv add /Library/Java/JavaVirtualMachines/microsoft-17.jdk/Contents/Home
-    jenv global 17
+
+    add_post_install_instructions "Java" "Microsoft Java installed, but not set to default. To set it as default use 'jenv global 17'"
 fi
+
 
 # dart
 # if ! command_exists dart; then
@@ -46,3 +47,10 @@ fi
 #         | sudo tee /etc/apt/sources.list.d/dart_stable.list
 #     sudo apt-get update && sudo apt-get install dart
 # fi
+
+post_install_instructions "SSH Agent" "Add your ssh keys to the keychain by running 'ssh-add -K ~/.ssh/<id>'"
+
+
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
+# end
+colorful_echo "   • ${GREEN}Finished WSL/Ubuntu Setup${WHITE}."
