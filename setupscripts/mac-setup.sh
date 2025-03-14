@@ -1,18 +1,20 @@
 #!/bin/bash
 
+brew_log="${brew_log:-brew.log}"
+
 # Let's get some fun color and stuff!
 if [[ -f "${HOME}/scripts/prettyfmt.sh" ]]; then
-    source"${HOME}/scripts/prettyfmt.sh"
+    source "${HOME}/scripts/prettyfmt.sh"
 else
-    echo "⛔ Could not find ~/scripts/prettyfmt.sh. Exiting..."
+    colorful_echo "⛔ Could not find ${GREEN}~/scripts/prettyfmt.sh${WHITE}. ${YELLOW}Exiting${WHITE}..."
     exit 1
 fi
 
-# get the functions
+# load the functions
 if [[ -f "${HOME}/.dotfiles/functions" ]]; then
     source "${HOME}/.dotfiles/functions"
 else
-    echo "⛔ Could not find ~/.dotfiles/functions. Exiting..."
+    colorful_echo "⛔ Could not find ${GREEN}~/.dotfiles/functions${WHITE}. ${YELLOW}Exiting${WHITE}..."
     exit 1
 fi
 
@@ -21,33 +23,21 @@ draw_sub_title "Mac OS Setup"
 draw_a_line "LINE"
 
 # mac os dev tools and apps
-command_exists betterzip || brew install betterzip 2>&1 | tee -a "${brew_log:?}"
 command_exists wget || brew install wget 2>&1 | tee -a "${brew_log:?}"
-command_exists stats || brew install stats 2>&1 | tee -a "${brew_log:?}"
+brew ls --versions visual-studio-code --cask > /dev/null || brew install --cask stats 2>&1 | tee -a "${brew_log:?}"
 
 # java
 if ! command_exists java || ! command_exists javac; then
     echo "Installing OpenJDK..."
-    brew install openjdk | tee -a "${brew_log}"
+    install_brew_package openjdk
 
     # After installation, you might need to link it
     sudo ln -sfn "$(brew --prefix)"/opt/openjdk/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk.jdk
 fi
 
-# Dart
-# if ! command_exists dart; then
-#     colorful_echo "Installing Dart..."
-#     brew tap dart-lang/dart
-#     brew install dart 2>&1 | tee -a "${brew_log}"
-# fi
-
 # IDEs
-command_exists code || brew install --cask visual-studio-code
-command_exists android-studio || brew install --cask android-studio
-
-# window tools
-command_exists rectangle || brew install --cask rectangle 2>&1 | tee -a "${brew_log}"
-
+brew ls --versions visual-studio-code --cask > /dev/null || brew install --cask visual-studio-code
+brew ls --versions android-studio --cask > /dev/null || brew install --cask android-studio
 # xcode
 if ! command_exists xcode-select; then
     colorful_echo "Installing Xcode..."
@@ -56,6 +46,11 @@ if ! command_exists xcode-select; then
     sudo xcodebuild -license
     xcodebuild -downloadPlatform iOS
 fi
+
+# tools
+brew ls --versions rectangle --cask > /dev/null || brew install --cask rectangle 2>&1 | tee -a "${brew_log}"
+brew ls --versions qlmarkdown --cask > /dev/null || brew install --cask qlmarkdown 2>&1 | tee -a "${brew_log}"
+
 # cocopods
 if ! command_exists pod; then
     colorful_echo "Installing Cocoapods..."

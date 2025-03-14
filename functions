@@ -28,3 +28,7 @@ listr() {
 command_exists() {
   command -v "$@" >/dev/null 2>&1
 }
+
+brew_exists() {
+  brew ls --versions "$1" &> /dev/null || brew ls --versions "$1" --cask &> /dev/null
+}
