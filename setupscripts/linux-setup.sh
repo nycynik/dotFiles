@@ -16,6 +16,7 @@ draw_sub_title "Linux Setup"
 draw_a_line "LINE"
 
 sudo apt update && sudo apt upgrade -y
+sudo apt-get install gnupg2 -y
 
 install_brew_package "htop"
 

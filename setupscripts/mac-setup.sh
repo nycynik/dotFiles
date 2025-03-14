@@ -55,6 +55,25 @@ EOF
 post_install_instructions "Ruby" "Ruby is set up, this only updated the version of ruby to the latest. $(ruby -v)"
 post_install_instructions "Ruby" "You may want to install bundler. Run 'gem install bundler'"
 
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
+# Terminal (iTerm2)
+
+# Function to apply iTerm2 preferences
+apply_iterm2_preferences() {
+    local ITERM2_PREFS_SRC="./tempates/com.googlecode.iterm2.plist"
+    local ITERM2_PREFS_DST="$HOME/Library/Preferences/com.googlecode.iterm2.plist"
+
+    if [ -f "$ITERM2_PREFS_SRC" ]; then
+        cp "$ITERM2_PREFS_SRC" "$ITERM2_PREFS_DST"
+        colorful_echo "   • ${BLUE}Applied iTerm2 preferences from $ITERM2_PREFS_SRC{$WHITE}."
+    else
+        colorful_echo "   • ${YELLOW}iTerm2 preferences file not found at $ITERM2_PREFS_SRC. Skipping${WHITE}."
+    fi
+}
+# Install iTerm2 & Prefs
+install_brew_package "iterm2"
+apply_iterm2_preferences
+post_install_instructions "Tools" "You may need to launch iTerm2 and approve it to run."
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # IDEs

@@ -124,6 +124,12 @@ USERNAME="${USERNAME:-$username}"  # Use $username as default if USERNAME is emp
 read -rp "$(echo -e "${BLUE}" "   Email" "${GREEN}"["${YELLOW}""$email""${GREEN}"]"${WHITE}":"${GREEN}")" USEREMAIL
 USEREMAIL="${USEREMAIL:-$email}"
 
+# generate a random passphrase
+PASSPHRASE=$(openssl rand -base64 32)
+read -rp "$(echo -e "${BLUE}" "   Passphrase" "${GREEN}"["${YELLOW}${PASSPHRASE}${GREEN}"]"${WHITE}":"${GREEN}")" PASSPHRASE
+PASSPHRASE="${PASSPHRASE:-supersecurepassphrase}"
+PASSPHRASE=$(echo "$PASSPHRASE" | tr -d '\n')  # Remove newlines from the passphrase
+
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # Confirm Info
 showScreen
@@ -170,6 +176,12 @@ fi
 
 if [[ ! -d "$HOME/bin/" ]]; then
 	mkdir "$HOME/bin"
+    add_config_to_shells "PERSONAL-BIN" <<'EOF'
+# include my personal bin folder in the Path
+if [ -d "$HOME/bin/" ]; then
+	export PATH=$PATH:~/bin
+fi
+EOF
     colorful_echo "   • ${BLUE}Created bin folder${WHITE}.\n"
 fi
 
@@ -216,12 +228,30 @@ install_zsh_plugin "https://github.com/zsh-users/zsh-autosuggestions.git"
 install_zsh_plugin "https://github.com/zsh-users/zsh-syntax-highlighting.git"
 
 
-
 # add functions and aliases to shell
 add_config_to_shells "dotFiles" <<'EOF'
     if [[ -f ~/.dotfiles/aliases ]]; then source ~/.dotfiles/aliases; fi'
     if [[ -f ~/.dotfiles/functions ]]; then source ~/.dotfiles/functions; fi'
 EOF
+
+# bash completion
+install_brew_package "bash-completion"
+if [[ ! -d "$HOME/.bash_completion.d" ]]; then
+    mkdir "$HOME/.bash_completion.d"
+    colorful_echo "   • ${BLUE}Created ${GREEN}~/.bash_completion.d${WHITE}."
+fi
+# add only to .bash_profile, so we dont' use add_config_to_shells
+if ! grep -q "bash_completion.d" ~/.bash_profile; then
+    {
+        echo "# Added by Dotfiles - DO NOT REMOVE THIS LINE - BASH-COMPLETION"
+        echo "if [ -d ~/.bash_completion.d ]; then"
+        echo "    for file in ~/.bash_completion.d/*; do"
+        echo "        [ -r \"\$file\" ] && [ -f \"\$file\" ] && source \"\$file\";"
+        echo "    done"
+        echo "fi"
+        echo "# Added by Dotfiles - DO NOT REMOVE THIS LINE - BASH-COMPLETION-END"
+    }  >> ~/.bash_profile
+fi
 
 # SSH Config
 if [[ ! -d "$HOME/.ssh" ]]; then
@@ -290,6 +320,50 @@ if ! command_exists tee; then
 fi
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
+# Setup Identity
+draw_a_line "LINE"
+draw_sub_title "Identity"
+draw_a_line "LINE"
+
+install_brew_package "gpg"
+if ! command -v gpg >/dev/null 2>&1; then
+    colorful_echo "   • ${RED}GPG failed to install${WHITE}."
+    exit 112
+fi
+
+if [[ ! -d "$HOME/.gnupg" ]]; then
+    mkdir "$HOME/.gnupg"
+    colorful_echo "   • ${BLUE}Created ${GREEN}~/.gnupg${WHITE}."
+fi
+# generate keys
+GPG_BATCH_CONTENT="$(cat <<EOF
+    %echo Generating a basic OpenPGP key
+    Key-Type: RSA
+    Key-Length: 4096
+    Name-Real: $USERNAME
+    Name-Email: $USEREMAIL
+    Expire-Date: 1y
+    Passphrase: $PASSPHRASE
+    %commit
+    %echo done
+EOF
+)"
+# Create temporary batch file
+BATCH_FILE=$(mktemp)
+echo "$GPG_BATCH_CONTENT" > "$BATCH_FILE"
+
+# Generate the key
+gpg --batch --generate-key "$BATCH_FILE"
+
+# Clean up the batch file
+rm "$BATCH_FILE"
+
+colorful_echo "   • ${BLUE}Created GPG key${WHITE}."
+# storing this for git setup later
+gpgkey=$(gpg --list-secret-keys --keyid-format LONG)
+
+
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # Setup Git
 draw_a_line "LINE"
 draw_sub_title "Setting up Git"
@@ -328,6 +402,10 @@ git config --global init.defaultBranch main
 git config --global core.hooksPath ~/.git-hooks
 git config --global help.autocorrect 5
 git config --global init.defaultBranch main
+git config --global user.signingkey "$gpgkey"
+git config --global commit.gpgsign true
+git config --global gpg.program gpg
+
 git config --global user.name "$USERNAME"
 git config --global user.email "$USEREMAIL"
 
