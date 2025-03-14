@@ -72,9 +72,9 @@ export brew_log
 ## Main script
 ## ---------------------------
 
-# --------- --------- --------- --------- --------- --------- --------- --------- --------- --------- 
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # User input / setup section
-# --------- --------- --------- --------- --------- --------- --------- --------- --------- --------- 
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 
 # verify we are int he right directory
 if [[ "${original_dir}" != "${HOME}" ]] ; then
@@ -99,7 +99,7 @@ else
     exit 1
 fi
 
-# --------- --------- --------- --------- --------- --------- --------- --------- --------- --------- 
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # OS Selection
 showScreen
 
@@ -156,8 +156,8 @@ else
     exit 1
 fi
 
-# --------- --------- --------- --------- --------- --------- --------- --------- --------- --------- 
-# Gather Info 
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
+# Gather Info
 showScreen
 
 colorful_echo "${WHITE}Let's set up your name for github and other services.\n"
@@ -168,8 +168,8 @@ USERNAME="${USERNAME:-$username}"  # Use $username as default if USERNAME is emp
 read -rp "$(echo -e "${BLUE}" "   Email" "${GREEN}"["${YELLOW}""$email""${GREEN}"]"${WHITE}":"${GREEN}")" USEREMAIL
 USEREMAIL="${USEREMAIL:-$email}"
 
-# --------- --------- --------- --------- --------- --------- --------- --------- --------- --------- 
-# Confirm Info 
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
+# Confirm Info
 showScreen
 
 colorful_echo "\n🖥️ ${BLUE}OS Selected${WHITE}: ${GREEN}$selected_os"
@@ -192,10 +192,10 @@ fi
 
 # sudo -v
 
-# --------- --------- --------- --------- --------- --------- --------- --------- --------- --------- 
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # Installation Section
-# --------- --------- --------- --------- --------- --------- --------- --------- --------- --------- 
-# Setup Shell 
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
+# Setup Shell
 draw_a_line "LINE"
 draw_sub_title "Setting up your shell and environment"
 draw_a_line "LINE"
@@ -255,10 +255,10 @@ P10K_CONFIG_DEST="$HOME/.p10k.zsh"
 if [[ ! -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k" ]]; then
     colorful_echo "   • ${BLUE}Installing Powerlevel10k${WHITE}."
     git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k"
-    
+
     # Ensure Powerlevel10k is set as the theme in .zshrc
     sed -i '' 's/^ZSH_THEME=.*/ZSH_THEME="powerlevel10k\/powerlevel10k"/' "$HOME/.zshrc"
-    
+
     # Copy existing Powerlevel10k config
     if [[ -f "$P10K_CONFIG_SOURCE" ]]; then
         cp "$P10K_CONFIG_SOURCE" "$P10K_CONFIG_DEST"
@@ -322,7 +322,7 @@ if [[ ! -f "$HOME/.ssh/github_key" ]]; then
 fi
 
 
-# --------- --------- --------- --------- --------- --------- --------- --------- --------- --------- 
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # Setup Homebrew
 draw_a_line "LINE"
 draw_sub_title "Setting up Homebrew"
@@ -349,7 +349,7 @@ if ! command_exists brew; then
 else
     colorful_echo "   • ${YELLOW}Homebrew already installed, updating${WHITE}."
 fi
-brew update && brew upgrade 
+brew update && brew upgrade
 {
     echo "## Homebrew Setup"
     echo "You should review the brew isntallation logs at $brew_log."
@@ -361,8 +361,8 @@ if ! command_exists tee; then
     colorful_echo "   • ${BLUE}Installed ${GREEN}tee${WHITE}."
 fi
 
-# --------- --------- --------- --------- --------- --------- --------- --------- --------- --------- 
-# Setup Git 
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
+# Setup Git
 draw_a_line "LINE"
 draw_sub_title "Setting up Git"
 draw_a_line "LINE"
@@ -404,7 +404,7 @@ git config --global init.defaultBranch main
 git config --global user.name "$USERNAME"
 git config --global user.email "$USEREMAIL"
 
-# --------- --------- --------- --------- --------- --------- --------- --------- --------- --------- 
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # Dev tools
 draw_a_line "LINE"
 draw_sub_title "Setting up Dev Tools"
@@ -417,7 +417,7 @@ install_brew_package "tree"
 install_brew_package "jq"
 install_brew_package "eza"
 
-# --------- --------- --------- --------- --------- --------- --------- --------- --------- --------- 
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # Flutter
 draw_a_line "LINE"
 draw_sub_title "Flutter, Dart, FVM"
@@ -445,7 +445,7 @@ else
     colorful_echo "   • ${YELLOW}FVM already installed${WHITE}."
 fi
 
-# --------- --------- --------- --------- --------- --------- --------- --------- --------- --------- 
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # JavaScript
 draw_a_line "LINE"
 draw_sub_title "Setting up JavaScript"
@@ -473,7 +473,7 @@ if ! grep -q "${marker}-NVM" "${HOME}/.bash_profile"; then
 fi
 install_brew_package "pnpm"
 
-# --------- --------- --------- --------- --------- --------- --------- --------- --------- --------- 
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # Java
 draw_a_line "LINE"
 draw_sub_title "Setting up Java"
@@ -502,14 +502,14 @@ if ! command_exists jenv ; then
         # shellcheck disable=SC2016
         echo 'export PATH="~/.jenv/bin:$PATH"'
         # shellcheck disable=SC2016
-        echo 'eval "$(jenv init -)"' 
+        echo 'eval "$(jenv init -)"'
     } >> ~/.zshrc
 fi
 
 echo "If you need additional java installations do so and use jenv add." >> "$post_install_tasks"
 
 
-# --------- --------- --------- --------- --------- --------- --------- --------- --------- --------- 
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # Python
 draw_a_line "LINE"
 draw_sub_title "Setting up Python"
@@ -521,7 +521,7 @@ if [[ ! -d "${HOME}/.venv" ]]; then
     mkdir "${HOME}/.venv"
 fi
 # safe to run multiple times
-uv python install 3.12 
+uv python install 3.12
 
 if [[ ! -d "${HOME}/.venv/dev" ]]; then
     uv venv "${HOME}/.venv/dev"
@@ -534,7 +534,7 @@ if ! command_exists pipx; then
     pipx ensurepath
 fi
 
-# --------- --------- --------- --------- --------- --------- --------- --------- --------- --------- 
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # PHP
 draw_a_line "LINE"
 draw_sub_title "Setting up PHP"
@@ -543,7 +543,7 @@ draw_a_line "LINE"
 install_brew_package "php"
 install_brew_package "composer"
 
-# --------- --------- --------- --------- --------- --------- --------- --------- --------- --------- 
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # Run the os specific script
 case $selected_os in
     "WSL")
@@ -557,7 +557,7 @@ case $selected_os in
         ;;
 esac
 
-# --------- --------- --------- --------- --------- --------- --------- --------- --------- --------- 
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # Final Steps
 draw_a_line "LINE"
 draw_sub_title "🎉 Setup complete! Please drive through 🎉"
@@ -574,7 +574,7 @@ while IFS= read -r line; do
     fi
 done < "$post_install_tasks"
 
-# --------- --------- --------- --------- --------- --------- --------- --------- --------- --------- 
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # the end.
 
 cd "${original_dir}" || exit 1
