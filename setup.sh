@@ -441,6 +441,8 @@ if ! command_exists fvm; then
     echo "You may want to install more versions of the Dart/Flutter SDK, via fvm install <version>" >> "$post_install_tasks"
     fvm use stable
     fvm flutter doctor --android-licenses
+else
+    colorful_echo "   • ${YELLOW}FVM already installed${WHITE}."
 fi
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- --------- 
@@ -453,13 +455,20 @@ install_brew_package "node"
 if ! command_exists nvm ; then
 	mkdir -p ~/.nvm
 	install_brew_package "nvm"
-
-   	cat <<EOT >> "${HOME}/.zshrc"
-# DOTFILES - DO NOT REMOVE THIS LINE-nvm    
-export NVM_DIR="~/.nvm"
-[ -s "$HOMEBREW_PREFIX/opt/nvm/nvm.sh" ] && \. "$HOMEBREW_PREFIX/opt/nvm/nvm.sh" # This loads nvm
-
-EOT
+fi
+if ! grep -q "${marker}-NVM" "$zshrc"; then
+    {
+        echo -e "\n${marker}-NVM"
+        echo 'export NVM_DIR="~/.nvm"'
+        echo '[ -s "$HOMEBREW_PREFIX/opt/nvm/nvm.sh" ] && \. "$HOMEBREW_PREFIX/opt/nvm/nvm.sh" # This loads nvm'
+    } >> "${HOME}/.zshrc"
+fi
+if ! grep -q "${marker}-NVM" "${HOME}/.bash_profile"; then
+    {
+        echo -e "\n${marker}-NVM"
+        echo 'export NVM_DIR="~/.nvm"'
+        echo '[ -s "$HOMEBREW_PREFIX/opt/nvm/nvm.sh" ] && \. "$HOMEBREW_PREFIX/opt/nvm/nvm.sh" # This loads nvm'
+    } >> "${HOME}/.bash_profile"
 	nvm install --lts
 fi
 install_brew_package "pnpm"
@@ -510,8 +519,11 @@ install_brew_package "uv"
 
 if [[ ! -d "${HOME}/.venv" ]]; then
     mkdir "${HOME}/.venv"
+fi
+# safe to run multiple times
+uv python install 3.12 
 
-    uv python install 3.12
+if [[ ! -d "${HOME}/.venv/dev" ]]; then
     uv venv "${HOME}/.venv/dev"
     # shellcheck source=/dev/null
     source "${HOME}/.venv/dev/bin/activate"
@@ -567,5 +579,3 @@ done < "$post_install_tasks"
 
 cd "${original_dir}" || exit 1
 exit 0
-
-
