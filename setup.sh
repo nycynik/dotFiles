@@ -388,7 +388,7 @@ fi
 
 # storing this for git setup later (needed if we just made it or not)
 gpgkey=$(gpg --list-secret-keys --keyid-format LONG "$USEREMAIL" | awk -F' ' '/sec/{print $2}' | awk -F'/' '{print $2}' | head -n 1)
-
+add_post_install_instructions "Identity" "Add your GPG key to github.com using gpg --armor --export $gpgkey"
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # Setup Git
