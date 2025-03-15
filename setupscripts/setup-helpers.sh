@@ -5,8 +5,66 @@
 # Also, they don't get added to the functions file since we only want them during installation.
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
-# Add config to Shell
+# Add config to Files, including the shell files as a special case.
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
+# functions to manage config blocks. adds and remoes them. also updates them.
+marker_string="# Added by Dotfiles - DO NOT REMOVE THIS LINE - "
+
+# add a config block with makers to a file. The format is shell and happens to work with python, or
+# anything else that uses # as a comment marker.
+add_config_to_file() {
+    local name="$1"         # Marker name to identify the config block
+    local file="$2"         # Target file where the config is to be added
+    local config_content="$3" # Content to add to the file
+    local marker="# Added by Dotfiles - DO NOT REMOVE THIS LINE - ${name}"
+
+    if ! grep -q "$marker" "$file"; then
+        # no marker so add content surrounded by markers
+        {
+            echo -e "\n$marker"
+            cat <<EOF
+$config_content
+EOF
+            echo -e "$marker-END\n"
+        } >> "$file"
+        colorful_echo "   • ${BLUE}Added config to ${GREEN}${file}${WHITE}."
+    else
+        colorful_echo "   • ${YELLOW}Skipping update for ${file}${WHITE}."
+    fi
+}
+# Replaces a config block, using above functions
+#
+# Usage:
+#   replace_config_in_file "Marker" <<'EOF'
+#   # Your config here
+#   EOF
+replace_config_in_file() {
+    local name="$1"  # Marker name to identify the config block
+    local file="$2"  # Target file where the config is to be updated
+    local config_content
+    config_content=$(cat)  # Capture the content from stdin
+
+    remove_config_from_file "$name" "$file" "quiet"
+    add_config_to_file "$name" "$file" "$config_content"
+}
+
+# This function removes content between the markers.
+remove_config_from_file() {
+    local name="$1"  # Marker name to identify the config block
+    local file="$2"  # Target file from which the config is to be removed
+    local quiet="$3"    # Optional flag to suppress error message
+    local marker="${marker_string}${name}"
+
+    if grep -q "$marker" "$file"; then
+        # Use sed to remove everything between markers
+        sed -i '' "/$marker/,/$marker-END/d" "$file"
+    else
+        if [ "$quiet" != "quiet" ]; then
+            colorful_echo "   • ${YELLOW}No marker found in ${file}${WHITE}."
+        fi
+    fi
+}
+
 # Add config to multiple shells. Hard coded now to zshrc and bash_profile, but you can add more
 # if/when we get to the next shell. I always like to maintain bash, even though I primarly
 # use zsh, becuase So many script files are /bin/bash.
@@ -17,31 +75,15 @@
 #   # Your config here
 #   EOF
 add_config_to_shells() {
-    local marker="# Added by Dotfiles - DO NOT REMOVE THIS LINE - ${1}"
+    local name="$1"
+    local config_content
+    config_content=$(cat)  # Capture the content from stdin
+
+    # Define the config files you want to add config to
     local config_files=("$HOME/.zshrc" "$HOME/.bash_profile")
 
-    # Capture the content from stdin
-    local config_content
-    config_content=$(cat)
-
-    # Prepare config content with ${HOME} expanded
-    eval "temp_content=\"$config_content\""
-
-    # shellcheck disable=SC2154
     for config_file in "${config_files[@]}"; do
-        if ! grep -q "$marker" "$config_file"; then
-            {
-                echo -e "\n$marker"
-                cat <<EOF
-$temp_content
-EOF
-            } >> "$config_file"
-            echo -e "$marker-END\n" >> "$config_file" # keep it neat.
-
-            colorful_echo "   • ${BLUE}Added config to ${GREEN}${config_file}${WHITE}."
-        else
-            colorful_echo "   • ${YELLOW}Marker already exists in ${config_file}${WHITE}."
-        fi
+        add_config_to_file "$name" "$config_file" "$config_content"
     done
 }
 
@@ -74,13 +116,13 @@ install_brew_package() {
 
     # Check if the package exists as a cask or formula and install accordingly
     if ! brew list --formula "$package_name" &> /dev/null; then
-        if brew search --cask --quiet "^${package_name}$" &> /dev/null; then
+        if brew search --cask --quiet "/^${package_name}$/" &> /dev/null; then
             if ! brew list --cask "$package_name" &> /dev/null; then
                 brew install --cask "$package_name" 2>&1 | tee -a "${brew_log}"
             else
                 colorful_echo "   • ${YELLOW}$package_name (cask) already installed, skipping${WHITE}."
             fi
-        elif brew search --formula --quiet "^${package_name}$" &> /dev/null; then
+        elif brew search --formula --quiet "/^${package_name}$/" &> /dev/null; then
             brew install "$package_name" 2>&1 | tee -a "${brew_log}"
         else
             colorful_echo "   • ${RED}$package_name not found as a formula or cask${WHITE}."
@@ -128,42 +170,63 @@ install_zsh_plugin() {
 #
 #setup the output location for the post installation tasks
 post_install_tasks="${HOME}/.dotfiles/logs/post_install_tasks_$(date +%Y%m%d).log"
-# Create the post install tasks file if it doesn't exist
-if [[ -f "${post_install_tasks}" ]] ; then
-	mv "${post_install_tasks}" "${post_install_tasks}.$(date +%Y%m%d)"
-fi
-touch "${post_install_tasks}"
-# create storage for the instructions with groups key is group, value is instruction
-declare -A post_install_instructions
+temp_storage="${post_install_tasks}.tmp"
+
+# This function makes a new file to store all the post install tasks.
+init_post_install_tasks() {
+    [[ -d "${HOME}/.dotfiles/logs" ]] || mkdir -p "${HOME}/.dotfiles/logs"
+    # Create the post install tasks file if it doesn't exist
+    if [[ -f "${post_install_tasks}" ]] ; then
+        rm "${post_install_tasks}"
+    fi
+    touch "${post_install_tasks}"
+
+    # new temp file each time
+    if [[ -f "${temp_storage}" ]] ; then
+        rm "${temp_storage}"
+    fi
+    touch "${temp_storage}"
+}
+
 # function to add a group of instructions. If the group exists, the instructions are
 # added to the list of instructions for that group.
 # Usage:
-#   add_post_install_instructions "Group Name" <<'EOF'
-#   # Your instructions here
-#   EOF
+#   add_post_install_instructions "Group Name" "Information"
 add_post_install_instructions() {
     local group_name="$1"
-    local instructions
-    instructions=$(cat)
+    local instructions="$2"
 
-    if [[ -z "${post_install_instructions[$group_name]}" ]]; then
-        post_install_instructions[$group_name]="$instructions"
-    else
-        post_install_instructions[$group_name]="${post_install_instructions[$group_name]}\n$instructions"
-    fi
+    # Append the instruction to the temp file, marking the group
+    echo -e "$group_name|$instructions" >> "$temp_storage"
 }
+
 # function that writes out the instructions to the file that is used to show
 # them, and is the record for later. It writes out the instructions, the groups show in alphabetical order
 # and instructions show in the order they were added.
 write_post_install_instructions() {
-    # Sort the groups alphabetically
-    for group in "${!post_install_instructions[@]}"; do
-        echo -e "## ${group}" >> "$post_install_tasks"
-        # instructions are shown in the order they were added.
-        # they are not sorted.
-        echo -e "${post_install_instructions[$group]}" >> "$post_install_tasks"
-    done
+    sorted_file="${post_install_tasks}.sorted"
+
+    # First, extract all unique group names and sort them
+    sorted_groups=$(cut -d'|' -f1 "$temp_storage" | sort -u)
+
+    # Clear the output file before writing
+    [[ -f "$sorted_file" ]] && rm "$sorted_file"
+    touch "$sorted_file"
+
+    # Iterate over sorted group names and append their instructions
+    while IFS= read -r group; do
+        echo "## $group" >> "$sorted_file"
+        grep "^$group|" "$temp_storage" | cut -d'|' -f2- | while IFS= read -r instruction; do
+            echo "  • $instruction" >> "$sorted_file"
+        done
+        echo "" >> "$sorted_file"  # Blank line for spacing
+    done <<< "$sorted_groups"
+
+    # Move sorted content to final file
+    mv "$sorted_file" "$post_install_tasks"
 }
+
+
 # function is called after the installation is complete. It prints a message to the user
 # with instructions on how to restart their shell or source their .zshrc file.
 #
@@ -171,13 +234,14 @@ write_post_install_instructions() {
 #   post_installation_instructions
 show_post_install_tasks() {
     colorful_echo "\n${GREEN}Post-Installation Tasks${WHITE}:"
+
     while IFS= read -r line; do
         if [[ $line == \#\#* ]]; then
             # It's a section header
-            echo -e "\n${BLUE}${line#\#\# }:${WHITE}"
-        else
+            echo -e "\n${BLUE}${line#\#\# }${WHITE}:"
+        elif [[ -n "$line" ]]; then
             # It's a regular item
-            echo -e "${YELLOW}  • ${WHITE}$line"
+            echo -e "${YELLOW}$line${WHITE}"
         fi
     done < "$post_install_tasks"
 }

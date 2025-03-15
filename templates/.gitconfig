@@ -1,5 +1,7 @@
 [core]
   editor = nano
+  excludesfile = ~/.gitignore_global
+  hooksPath = ~/.git-hooks
 
 [alias]
   br = branch
@@ -15,7 +17,9 @@
   #
   fixup = "!git log -n 50 --pretty=format:'%h %s' --no-merges | fzf | cut -c -7 | xargs -o git commit --fixup"
   #
-  hist = 'log --pretty-format:"%h %ad | %s%C(auto)%d$Creset [%an]" --graph --date=short'
+  hist = "log --pretty=format:'%C(yellow)[%ad]%C(reset) %C(green)[%h]%C(reset) | %C(red)%s %C(bold red){{%an}}%C(reset) %C(blue)%d%C(reset)' --graph --date=short"
+
+
   #
   last = "log -1 HEAD"
   #
@@ -30,8 +34,11 @@
   type = 'cat-file -t'
 
 [delta]
-	features = line-numbers decorations
-	line-numbers = true
+  features = line-numbers decorations
+  line-numbers = true
+
+[help]
+  autoCorrect = 5
 
 [init]
-        defaultBranch = main
+  defaultBranch = main

@@ -3,8 +3,8 @@
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # Functions
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
-[[ -f ./setupscripts/addfunctions.sh ]] && source ./setupscripts/addfunctions.sh || {
-    echo "setup-helpers.sh not found"
+[[ -f ./setupscripts/add-functions.sh ]] && source ./setupscripts/add-functions.sh || {
+    echo "add-functions.sh not found"
     exit 199
 }
 
@@ -48,7 +48,7 @@ fi
 #     sudo apt-get update && sudo apt-get install dart
 # fi
 
-post_install_instructions "SSH Agent" "Add your ssh keys to the keychain by running 'ssh-add -K ~/.ssh/<id>'"
+add_post_install_instructions "SSH Agent" "Add your ssh keys to the keychain by running 'ssh-add -K ~/.ssh/<id>'"
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # end

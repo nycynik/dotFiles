@@ -3,8 +3,8 @@
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # Functions
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
-[[ -f ./setupscripts/addfunctions.sh ]] && source ./setupscripts/addfunctions.sh || {
-    echo "setup-helpers.sh not found"
+[[ -f ./setupscripts/add-functions.sh ]] && source ./setupscripts/add-functions.sh || {
+    echo "add-functions.sh not found, can't recover"
     exit 199
 }
 
@@ -44,15 +44,6 @@ if [[ "${original_dir}" != "${HOME}" ]] ; then
             exit 120
         fi
     fi
-fi
-
-# Let's get some fun color and stuff!
-if [[ -f ./scripts/prettyfmt.sh ]]; then
-    clear
-    source ./scripts/prettyfmt.sh
-else
-    echo "⛔ Could not find ~/scripts/prettyfmt.sh. Exiting..."
-    exit 1
 fi
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
@@ -121,20 +112,26 @@ colorful_echo "${WHITE}Let's set up your name for github and other services.\n"
 read -rp "$(echo -e "${BLUE}"Full Name "${GREEN}"["${YELLOW}""$username""${GREEN}"]"${WHITE}":"${GREEN}")" USERNAME
 USERNAME="${USERNAME:-$username}"  # Use $username as default if USERNAME is empty
 
-read -rp "$(echo -e "${BLUE}" "   Email" "${GREEN}"["${YELLOW}""$email""${GREEN}"]"${WHITE}":"${GREEN}")" USEREMAIL
+read -rp "$(echo -e "${BLUE}Email" "${GREEN}"["${YELLOW}""$email""${GREEN}"]"${WHITE}":"${GREEN}")" USEREMAIL
 USEREMAIL="${USEREMAIL:-$email}"
 
 # generate a random passphrase
 PASSPHRASE=$(openssl rand -base64 32)
-read -rp "$(echo -e "${BLUE}" "   Passphrase" "${GREEN}"["${YELLOW}${PASSPHRASE}${GREEN}"]"${WHITE}":"${GREEN}")" PASSPHRASE
+read -rp "$(echo -e "${BLUE}Passphrase" "${GREEN}[${YELLOW}${PASSPHRASE}${GREEN}]${WHITE}:${GREEN}")" PASSPHRASE
 PASSPHRASE="${PASSPHRASE:-supersecurepassphrase}"
 PASSPHRASE=$(echo "$PASSPHRASE" | tr -d '\n')  # Remove newlines from the passphrase
+
+# get default development folder, defaults to ~/dev
+read -rp "$(echo -e "${BLUE}Dev Folder" "${GREEN}[${YELLOW}~/dev${GREEN}]${WHITE}:${GREEN}")" DEV_FOLDER
+DEV_FOLDER="${DEV_FOLDER:-~/dev}"
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # Confirm Info
 showScreen
 
-colorful_echo "\n🖥️ ${BLUE}OS Selected${WHITE}: ${GREEN}$selected_os"
+echo ""
+colorful_echo "📝 ${BLUE}Please confirm your settings"
+colorful_echo "🖥️  ${BLUE}OS Selected${WHITE}: ${GREEN}${selected_os}"
 colorful_echo "📬   ${BLUE}User Info${WHITE}: ${GREEN}${USERNAME} <${USEREMAIL}>"
 colorful_echo "🏠 ${BLUE}Home Folder${WHITE}: ${GREEN}${HOME}"
 [[ ! -d "$HOME/.oh-my-zsh" ]] && colorful_echo "📜 ${BLUE}       P10k${WHITE}: ${GREEN}Will be installed"
@@ -174,21 +171,29 @@ if [[ ! -d "${HOME}/.dotfiles/logs" ]] ; then
     colorful_echo " • ${BLUE}Created logs folder${WHITE}."
 fi
 
+# create the post install file for this run
+init_post_install_tasks
+
 if [[ ! -d "$HOME/bin/" ]]; then
 	mkdir "$HOME/bin"
-    add_config_to_shells "PERSONAL-BIN" <<'EOF'
+    colorful_echo "   • ${BLUE}Created bin folder${WHITE}.\n"
+fi
+add_config_to_shells "PERSONAL-BIN" <<'EOF'
 # include my personal bin folder in the Path
-if [ -d "$HOME/bin/" ]; then
+if [ -d "~/bin/" ]; then
 	export PATH=$PATH:~/bin
 fi
 EOF
-    colorful_echo "   • ${BLUE}Created bin folder${WHITE}.\n"
-fi
 
 if [[ ! -d "${HOME}/scripts/" ]]; then
     mkdir "${HOME}/scripts"
     cp -Rf ./scripts/* "$HOME/scripts/"
     colorful_echo "   • ${BLUE}Created scripts folder${WHITE}."
+fi
+
+if [[ ! -d "${DEV_FOLDER}" ]]; then
+    mkdir -p "${DEV_FOLDER}"
+    colorful_echo "   • ${BLUE}Created Default dev folder at ${DEV_FOLDER}${WHITE}."
 fi
 
 # ensure bash profile and zshrc exist, they should
@@ -229,9 +234,9 @@ install_zsh_plugin "https://github.com/zsh-users/zsh-syntax-highlighting.git"
 
 
 # add functions and aliases to shell
-add_config_to_shells "dotFiles" <<'EOF'
-    if [[ -f ~/.dotfiles/aliases ]]; then source ~/.dotfiles/aliases; fi'
-    if [[ -f ~/.dotfiles/functions ]]; then source ~/.dotfiles/functions; fi'
+add_config_to_shells "SOURCES" <<'EOF'
+    if [[ -f ~/.dotfiles/aliases ]]; then source ~/.dotfiles/aliases; fi
+    if [[ -f ~/.dotfiles/functions ]]; then source ~/.dotfiles/functions; fi
 EOF
 
 # bash completion
@@ -241,17 +246,13 @@ if [[ ! -d "$HOME/.bash_completion.d" ]]; then
     colorful_echo "   • ${BLUE}Created ${GREEN}~/.bash_completion.d${WHITE}."
 fi
 # add only to .bash_profile, so we dont' use add_config_to_shells
-if ! grep -q "bash_completion.d" ~/.bash_profile; then
-    {
-        echo "# Added by Dotfiles - DO NOT REMOVE THIS LINE - BASH-COMPLETION"
-        echo "if [ -d ~/.bash_completion.d ]; then"
-        echo "    for file in ~/.bash_completion.d/*; do"
-        echo "        [ -r \"\$file\" ] && [ -f \"\$file\" ] && source \"\$file\";"
-        echo "    done"
-        echo "fi"
-        echo "# Added by Dotfiles - DO NOT REMOVE THIS LINE - BASH-COMPLETION-END"
-    }  >> ~/.bash_profile
+add_config_to_file "BASH-COMPLETION" "${HOME}/.bash_profile" <<'EOF'
+if [ -d ~/.bash_completion.d ]; then
+    for file in ~/.bash_completion.d/*; do
+        [ -r "$file" ] && [ -f "$file" ] && source "$file";
+    done
 fi
+EOF
 
 # SSH Config
 if [[ ! -d "$HOME/.ssh" ]]; then
@@ -260,25 +261,45 @@ if [[ ! -d "$HOME/.ssh" ]]; then
 fi
 if [[ ! -f "$HOME/.ssh/config" ]]; then
     touch "$HOME/.ssh/config"
-    printf "# SSH CONFIG\n\n# Include ~/.ssh/localservers/n" >> "${HOME}/.ssh/config"
+    printf "# SSH CONFIG\n\n# Include ~/.ssh/localservers\n" >> "${HOME}/.ssh/config"
     chmod 600 "$HOME/.ssh/config"
     colorful_echo "   • ${BLUE}Created ${GREEN}~/.ssh/config${WHITE}."
 fi
 
 # create keys if they don't exist
-eval "$(ssh-agent -s)"
+eval "$(ssh-agent -s)" > /dev/null
+
 if [[ ! -f "$HOME/.ssh/id_ed25519" ]]; then
     ssh-keygen -t ed25519 -C "$USEREMAIL" -f "$HOME/.ssh/id_ed25519"
     ssh-add ~/.ssh/id_ed25519
     colorful_echo "   • ${BLUE}Created ${GREEN}~/.ssh/id_rsa${WHITE}."
 fi
 
+replace_config_in_file "SSH-ALL-SITES" "${HOME}/.ssh/config" <<'EOF'
+Host *
+  ForwardAgent yes
+  ForwardX11 yes
+  VisualHostKey yes
+  IdentityFile ~/.ssh/id_ed25519
+  AddKeysToAgent yes
+EOF
+
+
 if [[ ! -f "$HOME/.ssh/github_key" ]]; then
     ssh-keygen -t ed25519 -C "$USEREMAIL" -f "$HOME/.ssh/github_key"
     ssh-add ~/.ssh/github_key
-    colorful_echo "   • ${BLUE}Created ${GREEN}~/.ssh/github_key${WHITE}."
+
+    replace_config_in_file "SSH-GITHUB" "${HOME}/.ssh/config" << 'EOF'
+Host github.com
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/github_key
+  IdentitiesOnly yes
+  ForwardX11 no
+EOF
+
     add_post_install_instructions "SSH" "Add your SSH keys for git to github.com (pbcopy < ~/.ssh/github_key on mac) https://github.com/settings/keys "
-    printf "\nHost github.com\n  HostName github.com\n  User git\n  IdentityFile ~/.ssh/github_key\n  IdentitiesOnly yes\n  ForwardX11 no\n" >> "${HOME}/.ssh/config"
+    colorful_echo "   • ${BLUE}Created ${GREEN}~/.ssh/github_key${WHITE}."
 fi
 
 
@@ -310,9 +331,10 @@ else
     colorful_echo "   • ${YELLOW}Homebrew already installed, updating${WHITE}."
 fi
 brew update && brew upgrade
-post_install_instructions "Homebrew" "You may need to open a new terminal for some settings to take effect."
-post_install_instructions "Homebrew" "You should review the brew installation logs at $(brew_get_brew_log_path)"
-post_install_instructions "Homebrew" "brew doctor was run, and you are ready to brew, but you may want to run it again and see if there were any warnings or to-dos."
+add_post_install_instructions "Homebrew" "You may need to open a new terminal for some settings to take effect."
+add_post_install_instructions "Homebrew" "You should review the brew installation logs at $(brew_get_brew_log_path)"
+add_post_install_instructions "Homebrew" "brew doctor was run, and you are ready to brew, but you may want to run it again and see if there were any warnings or to-dos."
+
 # if tee is not isntalled, isntall it with brew.
 if ! command_exists tee; then
 	brew install tee # can't use function for this one, because function requres tee.
@@ -325,7 +347,7 @@ draw_a_line "LINE"
 draw_sub_title "Identity"
 draw_a_line "LINE"
 
-install_brew_package "gpg"
+install_brew_package "gnupg"
 if ! command -v gpg >/dev/null 2>&1; then
     colorful_echo "   • ${RED}GPG failed to install${WHITE}."
     exit 112
@@ -333,10 +355,19 @@ fi
 
 if [[ ! -d "$HOME/.gnupg" ]]; then
     mkdir "$HOME/.gnupg"
+    chown -R "$(whoami)" "$HOME/.gnupg"
+    chmod 700 "$HOME/.gnupg"
+
+    # find ~/.gnupg -type f -exec chmod 600 {} \; # Set 600 for files
+    # find ~/.gnupg -type d -exec chmod 700 {} \; # Set 700 for directories
+
     colorful_echo "   • ${BLUE}Created ${GREEN}~/.gnupg${WHITE}."
 fi
-# generate keys
-GPG_BATCH_CONTENT="$(cat <<EOF
+
+# check if gpg keys already exist for this user, if not generate them.
+if ! gpg --list-keys "${USEREMAIL}" &>/dev/null; then
+    # we need to generate a key
+    GPG_BATCH_CONTENT="$(cat <<EOF
     %echo Generating a basic OpenPGP key
     Key-Type: RSA
     Key-Length: 4096
@@ -347,20 +378,16 @@ GPG_BATCH_CONTENT="$(cat <<EOF
     %commit
     %echo done
 EOF
-)"
-# Create temporary batch file
-BATCH_FILE=$(mktemp)
-echo "$GPG_BATCH_CONTENT" > "$BATCH_FILE"
+    )"
 
-# Generate the key
-gpg --batch --generate-key "$BATCH_FILE"
+    echo "$GPG_BATCH_CONTENT" | gpg --batch --generate-key
+    colorful_echo "   • ${BLUE}Created GPG key${WHITE}."
+else
+    colorful_echo "   • ${YELLOW}GPG key already exists. Skipping creation.${WHITE}."
+fi
 
-# Clean up the batch file
-rm "$BATCH_FILE"
-
-colorful_echo "   • ${BLUE}Created GPG key${WHITE}."
-# storing this for git setup later
-gpgkey=$(gpg --list-secret-keys --keyid-format LONG)
+# storing this for git setup later (needed if we just made it or not)
+gpgkey=$(gpg --list-secret-keys --keyid-format LONG "$USEREMAIL" | awk -F' ' '/sec/{print $2}' | awk -F'/' '{print $2}' | head -n 1)
 
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
@@ -371,41 +398,25 @@ draw_a_line "LINE"
 
 install_brew_package "git"
 if [[ ! -f "$HOME/.gitconfig" ]]; then
-	cp ./.gitconfig "$HOME/.gitconfig"
+	cp ./templates/.gitconfig "$HOME/.gitconfig"
 fi
+
 if [[ ! -f "$HOME/.gitignore_global" ]]; then
-	touch "$HOME/.gitignore_global"
-	cat ./gitignore_global >> "$HOME/.gitignore_global"
+    cp ./templates/gitignore_global "$HOME/.gitignore_global"
 fi
 
 if [[ ! -d "$HOME/.git-hooks" ]]; then
     mkdir -p "$HOME/.git-hooks"
-    cp ./pre-commit "$HOME/.git-hooks/pre-commit"
+    cp ./templates/pre-commit "$HOME/.git-hooks/pre-commit"
     chmod +x "$HOME/.git-hooks/pre-commit"
 fi
 
-git config --global core.editor nano
-git config --global alias.co checkout
-git config --global alias.br branch
-git config --global alias.ci commit
-git config --global alias.st status
-git config --global alias.ss 'status -s'
-git config --global alias.last 'log -1 HEAD'
-git config --global alias.p 'pull --rebase'
-git config --global alias.type 'cat-file -t'
-git config --global alias.dump 'cat-file -p'
-# shellcheck disable=SC2016
-git config --global alias.hist 'log --pretty=format:"%h %ad | %s%C(auto)%d$Creset [%an]" --graph --date=short'
-
-git config --global core.excludesfile ~/.gitignore_global
-git config --global init.defaultBranch main
-git config --global core.hooksPath ~/.git-hooks
-git config --global help.autocorrect 5
-git config --global init.defaultBranch main
+# setup gpg
 git config --global user.signingkey "$gpgkey"
 git config --global commit.gpgsign true
 git config --global gpg.program gpg
 
+# setup user info
 git config --global user.name "$USERNAME"
 git config --global user.email "$USEREMAIL"
 
@@ -418,12 +429,14 @@ draw_a_line "LINE"
 # dev tools
 install_brew_package "watchman"
 install_brew_package "httpie"
+install_brew_package "curl"
 install_brew_package "tree"
 install_brew_package "jq"
 install_brew_package "eza"
 install_brew_package "shellcheck"
+install_brew_package "fzf"
 
-add_post_install_instructions "Dev Tools Setup" "Add vscode to the command line. Launch vscode, c-a-P 'term' and then click add it. If there are any issues, you may need to remove /usr/bin/local/code first."
+add_post_install_instructions "Tools" "Add vscode to the command line. Launch vscode, c-a-P 'term' and then click add it. If there are any issues, you may need to remove /usr/bin/local/code first."
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # Flutter
@@ -438,18 +451,20 @@ if ! command_exists fvm; then
 
     brew tap leoafarias/fvm
     install_brew_package "fvm"
-    add_post_install_instructions "Dart and Flutter" "Run fvm flutter doctor to ensure flutter is working"
-    add_post_install_instructions "Dart and Flutter" "Verify the simulator works via 'open -a Simulator' for mac or Android Studio for Android"
+    add_post_install_instructions "Flutter" "Run fvm flutter doctor to ensure flutter is working"
+    add_post_install_instructions "Flutter" "Verify the simulator works via 'open -a Simulator' for mac or Android Studio for Android"
     mkdir "${HOME}/.fvm"
     fvm install stable
     fvm global stable
-    add_config_to_shells "DART" "export PATH='$HOME/.fvm/bin:$PATH'"
-    add_post_install_instructions "Dart and Flutter" "You may want to install more versions of the Dart/Flutter SDK, via fvm install <version>"
+    add_post_install_instructions "Flutter" "You may want to install more versions of the Dart/Flutter SDK, via fvm install <version>"
     fvm use stable
     fvm flutter doctor --android-licenses
 else
     colorful_echo "   • ${YELLOW}FVM already installed${WHITE}."
 fi
+add_config_to_shells "DART" <<'EOF'
+export PATH="$HOME/.fvm/bin:$PATH"
+EOF
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # JavaScript
@@ -457,16 +472,12 @@ draw_a_line "LINE"
 draw_sub_title "Setting up JavaScript"
 draw_a_line "LINE"
 
-install_brew_package "node"
-if ! command_exists nvm ; then
-	mkdir -p "${HOME}/.nvm"
-	install_brew_package "nvm"
+# install standalone pnpm
+if ! command_exists pnpm; then
+    curl -fsSL https://get.pnpm.io/install.sh | sh -
+    add_post_install_instructions "pnpm" "pnpm env use --global lts"
+    colorful_echo "   • ${GREEN}Installed pnpm${WHITE}."
 fi
-add_config_to_shells "NVM" <<'EOF'
-    export NVM_DIR="~/.nvm"
-    [ -s "$HOMEBREW_PREFIX/opt/nvm/nvm.sh" ] && source "$HOMEBREW_PREFIX/opt/nvm/nvm.sh" # This loads nvm
-EOF
-install_brew_package "pnpm"
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # Java
@@ -483,12 +494,12 @@ add_post_install_instructions "Java" "Verify the JAVA_HOME is set correctly to J
 if ! command_exists jenv ; then
     colorful_echo "   • ${BLUE}jEnv installed${WHITE}."
     install_brew_package "jenv"
-    add_config_to_shells "jEnv" <<'EOF'
+fi
+add_config_to_shells "jEnv" <<'EOF'
 export PATH="~/.jenv/bin:$PATH"
 eval "$(jenv init -)"
 EOF
 
-fi
 add_post_install_instructions "Java" "Add your java installations, and then add them to jEnv using use jenv add."
 
 # Ensure jEnv is installed
@@ -499,7 +510,6 @@ fi
 
 # Function to add newly installed JDKs to jEnv
 get_jdk_installation_path() {
-    global selected_os
 
     case $selected_os in
         "WSL")
@@ -532,7 +542,7 @@ is_openjdk_installed_jenv() {
 # Function to set jEnv to use the newly installed OpenJDK
 set_jenv_version() {
     # Get the installed OpenJDK directory
-    latest_jdk=$(ls -td /Library/Java/JavaVirtualMachines/jdk*.jdk | head -n 1)
+    latest_jdk="$(ls -td /Library/Java/JavaVirtualMachines/jdk*.jdk | head -n 1)"
     if [ -n "$latest_jdk" ]; then
         version_name=$(basename "$latest_jdk" .jdk)
         jenv global "$version_name"
@@ -545,24 +555,24 @@ set_jenv_version() {
 
 # Install OpenJDK if not already managed by jEnv
 if ! is_openjdk_installed_jenv "1\.[0-9]*" && ! is_openjdk_installed_jenv "temurin"; then
-    install_brew_package "openjdk"  # Use Homebrew to manage JDK installations
+    install_brew_package "temurin"
 
     # Add installed JDKs to jEnv
     add_new_jdks_to_jenv
 
     # Set the latest OpenJDK as default
-    latest_version=$(jenv versions --bare | grep -E 'openjdk|temurin' | sort -V | tail -n 1)
+    latest_version=$(jenv versions --bare | grep -E 'temurin' | sort -V | tail -n 1)
     if [ -n "$latest_version" ]; then
         jenv global "$latest_version"
         colorful_echo "   • ${GREEN}Set $latest_version as the default Java version using jEnv${WHITE}."
     else
         colorful_echo "   • ${RED}No OpenJDK versions detected by jEnv${WHITE}."
-        post_install_instructions "Java" "Script was unable to install OpenJDK. Please install it manually and configur jEnv."
+        add_post_install_instructions "Java" "Script was unable to install OpenJDK. Please install it manually and configur jEnv."
     fi
 else
     colorful_echo "   • ${YELLOW}An OpenJDK version is already the default Java managed by jEnv.${WHITE}"
 fi
-post_install_instructions "Java" "This should have installed the lastest version of OpenJDK. $(java -version)"
+add_post_install_instructions "Java" "This should have installed the lastest version of OpenJDK. $(java -version)"
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # Python
@@ -632,3 +642,8 @@ show_post_install_tasks
 
 cd "${original_dir}" || exit 1
 exit 0
+
+# for key in $(gpg --list-keys --with-colons | grep 'uid' | grep 'nycynik@gmail.com' | awk -F: '{print $10}'); do
+#     gpg --delete-secret-key "$key"
+#     gpg --delete-key "$key"
+# done

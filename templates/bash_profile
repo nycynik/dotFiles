@@ -3,4 +3,3 @@
 # include .bashrc and profile
 [[ -f "$HOME/.profile" ]] && source ~/.profile
 [[ -f "$HOME/.bashrc" ]] && source ~/.bashrc
-

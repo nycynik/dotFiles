@@ -176,5 +176,5 @@ center_text() {
 # Colorful echo is a shortcut to drawing a colored line of text
 # Usage: colorful_echo <Text>
 function colorful_echo() {
-  echo -e "$@" "${NC}"
+  printf "%b${NC}\n" "$1"
 }

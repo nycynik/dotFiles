@@ -75,7 +75,8 @@ Android development is mostly managed by Android Studio.
 
 ## JavaScript
 
-Node development includes [nvm](https://github.com/nvm-sh/nvm) for managing node SDKs. [pnpm](https://pnpm.io/) for a JavaScript package manager.
+~~Node development includes [nvm](https://github.com/nvm-sh/nvm) for managing node SDKs.~~
+[pnpm](https://pnpm.io/) for a JavaScript package manager. pnpm can also manage node versions, so trying to just use that.
 
 ## Java
 

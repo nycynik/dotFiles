@@ -3,14 +3,13 @@
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # Functions
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
-[[ -f ./setupscripts/addfunctions.sh ]] && source ./setupscripts/addfunctions.sh || {
-    echo "setup-helpers.sh not found"
+[[ -f ./setupscripts/add-functions.sh ]] && source ./setupscripts/add-functions.sh || {
+    echo "add-functions.sh not found"
     exit 199
 }
 
-
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
-# Main
+#   MAiN
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 draw_a_line "LINE"
 draw_sub_title "Mac OS Setup"
@@ -21,20 +20,9 @@ draw_a_line "LINE"
 ssh-add --apple-use-keychain ~/.ssh/id_ed25519
 ssh-add --apple-use-keychain ~/.ssh/github_key
 add_config_to_shells "SSH_AGENT" <<'EOF'
-# Check if an ssh-agent is already running
-if ! pgrep -q ssh-agent; then
-  # If not, start a new ssh-agent and save the environment variables to a file
-  eval $(ssh-agent -s) > ~/.ssh/ssh-agent-vars
-  ssh-add --apple-use-keychain ~/.ssh/id_ed25519
-  ssh-add --apple-use-keychain ~/.ssh/github_key
-else
-  # Otherwise, use the existing agent
-  if [[ -f ~/.ssh/ssh-agent-vars ]]; then
-    source ~/.ssh/ssh-agent-vars
-  fi
-fi
+eval "$(ssh-agent -s)" > /dev/null
 EOF
-post_install_instructions "SSH" "Add your ssh keys to the keychain by running 'ssh-add --apple-use-keychain ~/.ssh/<id>' for any additional keys"
+add_post_install_instructions "SSH" "Add your ssh keys to the keychain by running 'ssh-add --apple-use-keychain ~/.ssh/<id>' for any additional keys"
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # tools
@@ -42,8 +30,9 @@ install_brew_package "rectangle"
 install_brew_package "qlmarkdown"
 install_brew_package "qlcolorcode"
 install_brew_package "wget"
+install_brew_package "bash" # upgrade to the latest bash, OSX is lagging, so this is needed.
 
-post_install_instructions "Tools" "Install Rectangle, QLMarkdown, QLColorCode, they are added to the Applications folder, but need to be opened and approved to use."
+add_post_install_instructions "Tools" "Install Rectangle, QLMarkdown, QLColorCode, they are added to the Applications folder, but need to be opened and approved to use."
 
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
@@ -52,8 +41,8 @@ install_brew_package "ruby"
 add_config_to_shells "RUBY" <<'EOF'
 export PATH="/usr/local/opt/ruby/bin:$PATH"
 EOF
-post_install_instructions "Ruby" "Ruby is set up, this only updated the version of ruby to the latest. $(ruby -v)"
-post_install_instructions "Ruby" "You may want to install bundler. Run 'gem install bundler'"
+add_post_install_instructions "Ruby" "Ruby is set up, this only updated the version of ruby to the latest. $(ruby -v)"
+add_post_install_instructions "Ruby" "You may want to install bundler. Run 'gem install bundler'"
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # Terminal (iTerm2)
@@ -73,7 +62,7 @@ apply_iterm2_preferences() {
 # Install iTerm2 & Prefs
 install_brew_package "iterm2"
 apply_iterm2_preferences
-post_install_instructions "Tools" "You may need to launch iTerm2 and approve it to run."
+add_post_install_instructions "Tools" "You may need to launch iTerm2 and approve it to run."
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # IDEs
@@ -110,11 +99,10 @@ fi
 if ! command_exists pod; then
     colorful_echo "   • Installing CocoaPods${WHITE}."
     sudo gem install cocoapods
-    add_config_to_shells "COCOAPODS" <<'EOF'
+fi
+add_config_to_shells "COCOAPODS" <<'EOF'
 export PATH="~/.gem/bin:$PATH"
 EOF
-
-fi
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 colorful_echo "   • ${GREEN}Finished MacOS Setup${WHITE}."
