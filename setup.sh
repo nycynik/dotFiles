@@ -289,7 +289,10 @@ if [[ ! -f "$HOME/.ssh/github_key" ]]; then
     ssh-keygen -t ed25519 -C "$USEREMAIL" -f "$HOME/.ssh/github_key"
     ssh-add ~/.ssh/github_key
 
-    replace_config_in_file "SSH-GITHUB" "${HOME}/.ssh/config" << 'EOF'
+    add_post_install_instructions "SSH" "Add your SSH keys for git to github.com (pbcopy < ~/.ssh/github_key on mac) https://github.com/settings/keys "
+    colorful_echo "   • ${BLUE}Created ${GREEN}~/.ssh/github_key${WHITE}."
+fi
+replace_config_in_file "SSH-GITHUB" "${HOME}/.ssh/config" << 'EOF'
 Host github.com
   HostName github.com
   User git
@@ -297,10 +300,6 @@ Host github.com
   IdentitiesOnly yes
   ForwardX11 no
 EOF
-
-    add_post_install_instructions "SSH" "Add your SSH keys for git to github.com (pbcopy < ~/.ssh/github_key on mac) https://github.com/settings/keys "
-    colorful_echo "   • ${BLUE}Created ${GREEN}~/.ssh/github_key${WHITE}."
-fi
 
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
