@@ -93,3 +93,7 @@ Java development uses [jenv](https://github.com/jenv/jenv) for SDK management. J
 Python development is supported by [uv](https://github.com/astral-sh/uv). This is a combination tool that replaces pip, pipx, pyenv, and virtualenv. That is a lot of tools, and so it's a bit more complex than some other tools, however it's so fast (written in Rust) and once you get the hang of it, you are going to love it.
 
 I did not install [Anaconda](https://docs.conda.io/) as part of the script, simply becuase I don't find myself using it very much, as most of my projects use some form of pip.
+
+# Ruby
+
+[Ruby](https://www.ruby-lang.org/en/) is installed to the latest version (or multiple versions are installed) and [asdf](https://rvm.io/) is added to manage the versions. Bundler is also installed. 

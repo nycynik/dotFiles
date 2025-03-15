@@ -289,7 +289,10 @@ if [[ ! -f "$HOME/.ssh/github_key" ]]; then
     ssh-keygen -t ed25519 -C "$USEREMAIL" -f "$HOME/.ssh/github_key"
     ssh-add ~/.ssh/github_key
 
-    replace_config_in_file "SSH-GITHUB" "${HOME}/.ssh/config" << 'EOF'
+    add_post_install_instructions "SSH" "Add your SSH keys for git to github.com (pbcopy < ~/.ssh/github_key on mac) https://github.com/settings/keys "
+    colorful_echo "   • ${BLUE}Created ${GREEN}~/.ssh/github_key${WHITE}."
+fi
+replace_config_in_file "SSH-GITHUB" "${HOME}/.ssh/config" << 'EOF'
 Host github.com
   HostName github.com
   User git
@@ -297,10 +300,6 @@ Host github.com
   IdentitiesOnly yes
   ForwardX11 no
 EOF
-
-    add_post_install_instructions "SSH" "Add your SSH keys for git to github.com (pbcopy < ~/.ssh/github_key on mac) https://github.com/settings/keys "
-    colorful_echo "   • ${BLUE}Created ${GREEN}~/.ssh/github_key${WHITE}."
-fi
 
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
@@ -435,8 +434,17 @@ install_brew_package "jq"
 install_brew_package "eza"
 install_brew_package "shellcheck"
 install_brew_package "fzf"
+install_brew_package "gawk"
 
 add_post_install_instructions "Tools" "Add vscode to the command line. Launch vscode, c-a-P 'term' and then click add it. If there are any issues, you may need to remove /usr/bin/local/code first."
+
+# asdf
+install_brew_package "asdf"
+add_config_to_shells "ASDF" <<'EOF'
+export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
+. $(brew --prefix asdf)/libexec/asdf.sh
+EOF
+
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # Flutter
@@ -453,7 +461,6 @@ if ! command_exists fvm; then
     install_brew_package "fvm"
     add_post_install_instructions "Flutter" "Run fvm flutter doctor to ensure flutter is working"
     add_post_install_instructions "Flutter" "Verify the simulator works via 'open -a Simulator' for mac or Android Studio for Android"
-    mkdir "${HOME}/.fvm"
     fvm install stable
     fvm global stable
     add_post_install_instructions "Flutter" "You may want to install more versions of the Dart/Flutter SDK, via fvm install <version>"
@@ -463,7 +470,7 @@ else
     colorful_echo "   • ${YELLOW}FVM already installed${WHITE}."
 fi
 add_config_to_shells "DART" <<'EOF'
-export PATH="$HOME/.fvm/bin:$PATH"
+export PATH="~/fvm/default/bin:$PATH"
 EOF
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
@@ -477,6 +484,23 @@ if ! command_exists pnpm; then
     curl -fsSL https://get.pnpm.io/install.sh | sh -
     add_post_install_instructions "pnpm" "pnpm env use --global lts"
     colorful_echo "   • ${GREEN}Installed pnpm${WHITE}."
+fi
+
+# install asdf plugin for nodejs if it's not installed, update otherwise
+if asdf plugin list | grep -q nodejs; then
+    colorful_echo "   • ${BLUE}Updating asdf nodejs plugin${WHITE}."
+    asdf plugin update nodejs
+else
+    colorful_echo "   • ${BLUE}Installing asdf nodejs plugin${WHITE}."
+    asdf plugin add nodejs
+    # asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
+fi
+# using asdf install latest version of node, if no node version installed by asdf yet
+if asdf list nodejs | grep -q "No installed versions found"; then
+    colorful_echo "   • ${BLUE}Installing latest nodejs version${WHITE}."
+    asdf install nodejs latest
+else
+    colorful_echo "   • ${YELLOW}Skipping installing latest nodejs${WHITE}."
 fi
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
@@ -614,6 +638,32 @@ add_post_install_instructions "PHP" "Add your PHP settings to ~/.php.ini"
 add_post_install_instructions "PHP" "Add your composer settings to ~/.composer/composer.json"
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
+# Ruby
+draw_a_line "LINE"
+draw_sub_title "Setting up Ruby"
+draw_a_line "LINE"
+
+# install asdf plugin for nodejs if it's not installed, update otherwise
+if asdf plugin list | grep -q nodejs; then
+    colorful_echo "   • ${BLUE}Updating asdf nodejs plugin${WHITE}."
+    asdf plugin update ruby
+else
+    colorful_echo "   • ${BLUE}Installing asdf nodejs plugin${WHITE}."
+    asdf plugin add ruby
+    install_zsh_plugin "https://github.com/asdf-vm/asdf.git"
+fi
+if asdf list ruby | grep -q "No installed versions found"; then
+    colorful_echo "   • ${BLUE}Installing latest ruby version${WHITE}."
+    asdf install ruby latest
+else
+    colorful_echo "   • ${YELLOW}Skipping installing latest ruby${WHITE}."
+fi
+add_config_to_shells "RUBY" <<'EOF'
+export PATH="~/.gem/bin:$PATH"
+EOF
+
+
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # Run the os specific script
 case $selected_os in
     "WSL")
@@ -626,6 +676,8 @@ case $selected_os in
         bash "${original_dir}/setupscripts/mac-setup.sh"
         ;;
 esac
+
+
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # Final Steps

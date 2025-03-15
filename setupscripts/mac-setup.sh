@@ -37,10 +37,6 @@ add_post_install_instructions "Tools" "Install Rectangle, QLMarkdown, QLColorCod
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # Ruby
-install_brew_package "ruby"
-add_config_to_shells "RUBY" <<'EOF'
-export PATH="/usr/local/opt/ruby/bin:$PATH"
-EOF
 add_post_install_instructions "Ruby" "Ruby is set up, this only updated the version of ruby to the latest. $(ruby -v)"
 add_post_install_instructions "Ruby" "You may want to install bundler. Run 'gem install bundler'"
 
@@ -96,13 +92,7 @@ fi
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # iOS/Flutter
-if ! command_exists pod; then
-    colorful_echo "   • Installing CocoaPods${WHITE}."
-    sudo gem install cocoapods
-fi
-add_config_to_shells "COCOAPODS" <<'EOF'
-export PATH="~/.gem/bin:$PATH"
-EOF
+add_post_install_instructions "Flutter" "install cocoapods with gem install cocoapods after activating the latest ruby"
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 colorful_echo "   • ${GREEN}Finished MacOS Setup${WHITE}."
