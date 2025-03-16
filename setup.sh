@@ -595,6 +595,7 @@ EOF
 
     colorful_echo "   • ${GREEN}Setup GitHub CLI{$WHITE}."
 
+    add_post_install_instructions "git" "authenticate with github CLI using 'git auth login'"
 }
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
