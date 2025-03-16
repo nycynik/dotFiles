@@ -41,7 +41,7 @@ showInstallationPart() {
     fi
     draw_a_line "LINE"
     draw_sub_title "${description}"
-} 
+}
 
 # global variables
 original_dir=$(pwd)
@@ -161,7 +161,7 @@ gather_user_settings() {
     PASSPHRASE=$(echo "$PASSPHRASE" | tr -d '\n')  # Remove newlines from the passphrase
     passphrase_length=${#PASSPHRASE}
     printf "%${passphrase_length}s\n" | tr ' ' '🔑'
-    
+
     # get default development folder, defaults to ~/dev
     read -rp "$(echo -e "${BLUE}Dev Folder" "${GREEN}[${YELLOW}~/dev${GREEN}]${WHITE}:${GREEN}")" DEV_FOLDER
     DEV_FOLDER="${DEV_FOLDER:-~/dev}"
@@ -776,4 +776,3 @@ main() {
 
 # Run main!
 main "$@"
-
