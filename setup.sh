@@ -551,8 +551,10 @@ setup_git() {
     git config --global user.name "$USERNAME"
     git config --global user.email "$USEREMAIL"
 
+    colorful_echo "   • ${GREEN}Setup git aliases{$WHITE}."
+
     tagFile "$HOME/.gitignore_global"
-    replace_config_in_file "GITIGNORE" <<'EOF'
+    replace_config_in_file "GITIGNORE" "$HOME/.gitignore_global" <<'EOF'
 # Mac
 .DS_Store
 .DS_Store?
@@ -567,6 +569,8 @@ Desktop.ini
 ehthumbs.db
 Thumbs.db
 EOF
+    colorful_echo "   • ${GREEN}Setup global git ignore{$WHITE}."
+
 
     # githooks
     if [[ ! -d "${HOME}/.git-hooks" ]]; then
@@ -575,7 +579,22 @@ EOF
         chmod +x "${HOME}/.git-hooks/pre-commit"
     fi
 
+    colorful_echo "   • ${GREEN}Setup git hooks{$WHITE}."
+
+    # GitHub CLI Setup
+    install_brew_package "gh" # github CLI
+
+    gh config set editor code
     
+    # gh aliases
+    gh alias set bugs 'issue list --label=bugs'
+    gh alias set 'issue mine' 'issue list --mention @me'
+    gh alias set homework 'issue list --assignee @me'
+    gh alias set 'issue mine --open' 'issue list --mention @me --state open'
+    gh alias set homework-open 'issue list --assignee @me --state open'
+
+    colorful_echo "   • ${GREEN}Setup GitHub CLI{$WHITE}."
+
 }
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------

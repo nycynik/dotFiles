@@ -41,7 +41,7 @@ EOF
 # Replaces a config block, using above functions
 #
 # Usage:
-#   replace_config_in_file "Marker" <<'EOF'
+#   replace_config_in_file "Marker" "file" <<'EOF'
 #   # Your config here
 #   EOF
 replace_config_in_file() {
@@ -50,8 +50,12 @@ replace_config_in_file() {
     local config_content
     config_content=$(cat)  # Capture the content from stdin
 
-    remove_config_from_file "$name" "$file" "quiet"
-    add_config_to_file "$name" "$file" "$config_content"
+    if [[ -f $file ]] ; then
+        remove_config_from_file "$name" "$file" "quiet"
+        add_config_to_file "$name" "$file" "$config_content"
+    else
+        colorful_echo "   • ${YELLOW}File not found ${GREEN}[{NC}${file}${GREEN}]${WHITE}."
+    fi 
 }
 
 # This function removes content between the markers.
