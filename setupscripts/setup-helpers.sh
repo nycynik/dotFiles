@@ -10,8 +10,14 @@
 # functions to manage config blocks. adds and remoes them. also updates them.
 marker_string="# Added by Dotfiles - DO NOT REMOVE THIS LINE - "
 
-# add a config block with makers to a file. The format is shell and happens to work with python, or
-# anything else that uses # as a comment marker.
+# Description:
+#   Adds a config block with makers to a file. The format is shell and happens to work with python, or
+#   anything else that uses # as a comment marker.
+# 
+# Usage:
+#    add_config_to_file "<marker>" "<target file>" <<'EOF'
+# content here
+# EOF
 add_config_to_file() {
     local name="$1"         # Marker name to identify the config block
     local file="$2"         # Target file where the config is to be added
@@ -257,3 +263,57 @@ show_post_install_tasks() {
         fi
     done < "$post_install_tasks"
 }
+
+# Description
+#   Creates the file if it does not exist, 
+#   maintains a create and mod date as comments.
+#    
+#   Kilroy was here
+# Usage:
+#   tagFile <filename> [optional single line comment character]
+tagFile() {
+    local file="$1"
+    local comment="${2:-#}"
+    local author="${3:-'dotFiles'}"
+    local current_date
+    local created_tag="${comment} Created:"
+    local modified_tag="${comment} Modified:"
+    local author_tag="${comment} Author: ${author}"
+    current_date="$(date +%Y-%m-%d)"
+
+    if [[ ! -f "$file" ]]; then
+        # Create new file with creation tag
+        touch "$file"
+        echo "${author_tag}" > "$file"
+        echo "${created_tag} ${current_date}" > "$file"
+    else
+        # Create temporary file
+        local temp_file="${file}.tmp"
+        
+        # If created tag doesn't exist, add it at the beginning
+        if ! grep -q "^${created_tag}" "$file"; then
+            echo "${created_tag} ${current_date}" > "$temp_file"
+            cat "$file" >> "$temp_file"
+        else
+            # Process the file line by line
+            while IFS= read -r line || [[ -n "$line" ]]; do
+                echo "$line" >> "$temp_file"
+                # If this is the Created line, add Modified right after
+                if [[ "$line" =~ ^"${created_tag}" ]]; then
+                    # Remove any existing modified tag before adding the new one
+                    if ! grep -q "^${modified_tag}" "$file"; then
+                        echo "${modified_tag} ${current_date}" >> "$temp_file"
+                    fi
+                fi
+            done < "$file"
+        fi
+
+        # Remove any other instances of the modified tag
+        sed -i.bak -e "/^${modified_tag}/d" "$temp_file"
+        
+        # Move temporary file back to original
+        mv "$temp_file" "$file"
+        rm -f "${file}.bak"
+    fi
+}
+

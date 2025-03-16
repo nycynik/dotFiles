@@ -486,34 +486,96 @@ EOF
 
 }
 
+# Description:
+#   Sets up git. This is safe to call twice, but will override all the git
+#   settings that are configured here. 
+#   * Creates .gitconfig if it does not exist
+#   * Sets up global config
+#   * Creates .gitignore_global 
+#   * Creates, or adds global git-hooks to include pre-commit.
+#
+# Usage:
+#   setup_git
 setup_git() {
     # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
     # Setup Git
-    showInstallationPart "Git" "Setting up Git and git config"
+    showInstallationPart "Git" "Setting up Git and configuring it"
 
     install_brew_package "git"
-    if [[ ! -f "$HOME/.gitconfig" ]]; then
-        cp ./templates/.gitconfig "$HOME/.gitconfig"
-    fi
 
-    if [[ ! -f "$HOME/.gitignore_global" ]]; then
-        cp ./templates/gitignore_global "$HOME/.gitignore_global"
-    fi
+    # setup gitconfig
+    tagFile "$HOME/.gitconfig"
+    # Add all the config
+    # Core settings
+    git config --global core.editor "nano"
+    git config --global core.excludesfile "${HOME}/.gitignore_global"
+    git config --global core.hooksPath "${HOME}/.git-hooks"
 
+    # Aliases
+    git config --global alias.br "branch"
+    git config --global alias.ci "commit -S"
+    git config --global alias.cia "commit -Sa"
+    git config --global alias.cd "commit -S --amend"
+    git config --global alias.cad "commit -S --amend --no-edit"
+    git config --global alias.co "checkout"
+    # shellcheck disable=SC2016
+    git config --global alias.co-push '!f() { git checkout -b $1; git push --set-upstream ${2:-origin} $1; }; f'
+    git config --global alias.dump "cat-file -p"
+    git config --global alias.fixup "!git log -n 50 --pretty=format:'%h %s' --no-merges | fzf | cut -c -7 | xargs -o git commit --fixup"
+    git config --global alias.h "!git log --oneline --decorate --all"
+    git config --global alias.hist "log --pretty=format:'%C(yellow)[%ad]%C(reset) %C(green)[%h]%C(reset) | %C(red)%s %C(bold red){{%an}}%C(reset) %C(blue)%d%C(reset)' --graph --date=short"
+    git config --global alias.last "log -1 HEAD"
+    git config --global alias.ls "ls-files"
+    git config --global alias.lsf "!git ls-files | grep -i"
+    git config --global alias.p "pull --rebase"
+    git config --global alias.st "status"
+    git config --global alias.ss "status -s"
+    git config --global alias.type "cat-file -t"
+
+    # Delta settings
+    git config --global delta.features "line-numbers decorations"
+    git config --global delta.line-numbers "true"
+
+    # Help settings (100th of seconds 5=.5s, 10=1s)
+    git config --global help.autoCorrect "20"
+
+    # Init settings
+    git config --global init.defaultBranch "main"
+
+    # setup gpg
+    git config --global commit.gpgsign true
+    git config --global gpg.program gpg
+
+    # setup user info
+    git config --global user.signingkey "$gpgkey"
+    git config --global user.name "$USERNAME"
+    git config --global user.email "$USEREMAIL"
+
+    tagFile "$HOME/.gitignore_global"
+    replace_config_in_file "GITIGNORE" <<'EOF'
+# Mac
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+.AppleDouble
+.LSOverride
+
+# Win
+Desktop.ini
+ehthumbs.db
+Thumbs.db
+EOF
+
+    # githooks
     if [[ ! -d "${HOME}/.git-hooks" ]]; then
         mkdir -p "${HOME}/.git-hooks"
         cp ./templates/pre-commit "${HOME}/.git-hooks/pre-commit"
         chmod +x "${HOME}/.git-hooks/pre-commit"
     fi
 
-    # setup gpg
-    git config --global user.signingkey "$gpgkey"
-    git config --global commit.gpgsign true
-    git config --global gpg.program gpg
-
-    # setup user info
-    git config --global user.name "$USERNAME"
-    git config --global user.email "$USEREMAIL"
+    
 }
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------

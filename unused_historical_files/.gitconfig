@@ -12,14 +12,14 @@
   cad = commit -S --amend --no-edit
   #
   co = checkout
+  co-push = '!f() { git checkout -b $1; git push --set-upstream ${2:-origin} $1; }; f'
   #
   dump = 'cat-file -p'
   #
   fixup = "!git log -n 50 --pretty=format:'%h %s' --no-merges | fzf | cut -c -7 | xargs -o git commit --fixup"
   #
+  h = 'git log --oneline --decorate --all'
   hist = "log --pretty=format:'%C(yellow)[%ad]%C(reset) %C(green)[%h]%C(reset) | %C(red)%s %C(bold red){{%an}}%C(reset) %C(blue)%d%C(reset)' --graph --date=short"
-
-
   #
   last = "log -1 HEAD"
   #
