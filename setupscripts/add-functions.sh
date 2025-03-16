@@ -9,11 +9,15 @@ else
     exit 100
 fi
 
+if [[ ! -d "${HOME}/scripts/" ]] ; then
+    cp -R ./scripts "${HOME}/scripts"
+fi
+
 # Let's get some fun color and stuff!
 if [[ -f "${HOME}/scripts/prettyfmt.sh" ]]; then
     source "${HOME}/scripts/prettyfmt.sh"
 else
-    colorful_echo "⛔ Could not find ~/scripts/prettyfmt.sh$. Exiting..."
+    echo "⛔ Could not find ~/scripts/prettyfmt.sh$. Exiting..."
     exit 101
 fi
 

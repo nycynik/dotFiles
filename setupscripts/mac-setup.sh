@@ -7,6 +7,8 @@
     echo "add-functions.sh not found"
     exit 199
 }
+BOX_WIDTH=80
+export BOX_WIDTH
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 #   MAiN
@@ -17,6 +19,7 @@ draw_a_line "LINE"
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # keychain for ssh agent
+colorful_echo "${WHITE}   • ${GREEN}Adding ssh keys to keychain"
 ssh-add --apple-use-keychain ~/.ssh/id_ed25519
 ssh-add --apple-use-keychain ~/.ssh/github_key
 add_config_to_shells "SSH_AGENT" <<'EOF'
@@ -37,7 +40,7 @@ add_post_install_instructions "Tools" "Install Rectangle, QLMarkdown, QLColorCod
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # Ruby
-add_post_install_instructions "Ruby" "Ruby is set up, this only updated the version of ruby to the latest. $(ruby -v)"
+add_post_install_instructions "Ruby" "Ruby is set up, this only updated the version of ruby to the latest."
 add_post_install_instructions "Ruby" "You may want to install bundler. Run 'gem install bundler'"
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------

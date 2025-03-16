@@ -217,7 +217,7 @@ write_post_install_instructions() {
     while IFS= read -r group; do
         echo "## $group" >> "$sorted_file"
         grep "^$group|" "$temp_storage" | cut -d'|' -f2- | while IFS= read -r instruction; do
-            echo "  • $instruction" >> "$sorted_file"
+            echo "$instruction" >> "$sorted_file"
         done
         echo "" >> "$sorted_file"  # Blank line for spacing
     done <<< "$sorted_groups"
@@ -241,7 +241,7 @@ show_post_install_tasks() {
             echo -e "\n${BLUE}${line#\#\# }${WHITE}:"
         elif [[ -n "$line" ]]; then
             # It's a regular item
-            echo -e "${YELLOW}$line${WHITE}"
+            echo -e "${YELLOW}  • ${WHITE}$line${WHITE}"
         fi
     done < "$post_install_tasks"
 }

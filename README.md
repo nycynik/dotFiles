@@ -96,4 +96,4 @@ I did not install [Anaconda](https://docs.conda.io/) as part of the script, simp
 
 # Ruby
 
-[Ruby](https://www.ruby-lang.org/en/) is installed to the latest version (or multiple versions are installed) and [asdf](https://rvm.io/) is added to manage the versions. Bundler is also installed. 
+[Ruby](https://www.ruby-lang.org/en/) is installed to the latest version (or multiple versions are installed) and [asdf](https://rvm.io/) is added to manage the versions. Bundler is also installed.
