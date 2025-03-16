@@ -13,7 +13,7 @@ marker_string="# Added by Dotfiles - DO NOT REMOVE THIS LINE - "
 # Description:
 #   Adds a config block with makers to a file. The format is shell and happens to work with python, or
 #   anything else that uses # as a comment marker.
-# 
+#
 # Usage:
 #    add_config_to_file "<marker>" "<target file>" <<'EOF'
 # content here
@@ -55,7 +55,7 @@ replace_config_in_file() {
         add_config_to_file "$name" "$file" "$config_content"
     else
         colorful_echo "   • ${YELLOW}File not found ${GREEN}[{NC}${file}${GREEN}]${WHITE}."
-    fi 
+    fi
 }
 
 # This function removes content between the markers.
@@ -269,9 +269,9 @@ show_post_install_tasks() {
 }
 
 # Description
-#   Creates the file if it does not exist, 
+#   Creates the file if it does not exist,
 #   maintains a create and mod date as comments.
-#    
+#
 #   Kilroy was here
 # Usage:
 #   tagFile <filename> [optional single line comment character]
@@ -293,7 +293,7 @@ tagFile() {
     else
         # Create temporary file
         local temp_file="${file}.tmp"
-        
+
         # If created tag doesn't exist, add it at the beginning
         if ! grep -q "^${created_tag}" "$file"; then
             echo "${created_tag} ${current_date}" > "$temp_file"
@@ -314,10 +314,9 @@ tagFile() {
 
         # Remove any other instances of the modified tag
         sed -i.bak -e "/^${modified_tag}/d" "$temp_file"
-        
+
         # Move temporary file back to original
         mv "$temp_file" "$file"
         rm -f "${file}.bak"
     fi
 }
-

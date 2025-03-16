@@ -173,7 +173,7 @@ gather_user_settings() {
 
     pk10_status="${GREEN}Installed"
     if [[ -d "$HOME/.oh-my-zsh" ]] ; then
-        pk10_status="${YELLOW}Skipping, already installed"        
+        pk10_status="${YELLOW}Skipping, already installed"
     fi
     hb_status="${GREEN}Installed"
     if [[ -d "/opt/homebrew" ]] ; then
@@ -488,10 +488,10 @@ EOF
 
 # Description:
 #   Sets up git. This is safe to call twice, but will override all the git
-#   settings that are configured here. 
+#   settings that are configured here.
 #   * Creates .gitconfig if it does not exist
 #   * Sets up global config
-#   * Creates .gitignore_global 
+#   * Creates .gitignore_global
 #   * Creates, or adds global git-hooks to include pre-commit.
 #
 # Usage:
@@ -585,7 +585,7 @@ EOF
     install_brew_package "gh" # github CLI
 
     gh config set editor code
-    
+
     # gh aliases
     gh alias set bugs 'issue list --label=bugs'
     gh alias set 'issue mine' 'issue list --mention @me'
