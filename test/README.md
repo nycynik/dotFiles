@@ -35,9 +35,8 @@ gather_user_settings() {
         # ... other defaults
         return
     fi
-    
+
     # Your existing interactive code
     ...
 }
 ```
-

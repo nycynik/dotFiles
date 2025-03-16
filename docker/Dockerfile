@@ -20,4 +20,3 @@ COPY --chown=testuser:testuser . /home/testuser/dotfiles/
 
 # Entry point that allows interactive testing
 ENTRYPOINT ["/bin/zsh"]
-

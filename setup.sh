@@ -438,7 +438,7 @@ setup_homebrew() {
                 pacman -S curl
             else
                 colorful_echo "   • ${RED}curl not installed, and no package manager found to install it.${WHITE}"
-                exit 2  
+                exit 2
             fi
         fi
 
