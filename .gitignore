@@ -1,6 +1,7 @@
 .idea
 
 /logs
+/data
 
 # FVM Version Cache
 .fvm/

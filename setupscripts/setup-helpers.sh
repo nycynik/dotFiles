@@ -86,6 +86,18 @@ add_config_to_shells() {
         add_config_to_file "$name" "$config_file" "$config_content"
     done
 }
+replace_config_in_shells() {
+    local name="$1"
+    local config_content
+    config_content=$(cat)  # Capture the content from stdin
+
+    # Define the config files you want to add config to
+    local config_files=("$HOME/.zshrc" "$HOME/.bash_profile")
+
+    for config_file in "${config_files[@]}"; do
+        replace_config_in_file "$name" "$config_file" "$config_content"
+    done
+}
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # Brew helper functions for installation

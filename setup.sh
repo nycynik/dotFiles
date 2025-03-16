@@ -24,16 +24,16 @@ showInstallationPart() {
     if command_exists figlet; then
         # this is when I realized I was having way too much fun.
         # Define an array of colors
-        colors=("${CYAN}" "${CYAN}" "${LIGHT_CYAN}" "${WHITE}" "${LIGHT_CYAN}" "${CYAN}" "${CYAN}" "${CYAN}" )
-        color_count=${#colors[@]}  # Get the number of colors
-        line_index=0
+        local colors=("${CYAN}" "${CYAN}" "${LIGHT_CYAN}" "${WHITE}" "${LIGHT_CYAN}" "${CYAN}" "${CYAN}" "${CYAN}" )
+        local color_count=${#colors[@]}  # Get the number of colors
+        local line_index=0
 
         figlet_output=$(figlet -f graffiti "${word}")
         while IFS= read -r line; do
             # Calculate padding for centering
             padding=$(( ($BOX_WIDTH - ${#line}) / 2 ))
             current_color="${colors[$((line_index % color_count))]}"
-            printf "%*s${current_color}%s\n" "$padding" "" "$line"
+            printf "%*s${BOLD}${current_color}%s${NC}\n" "$padding" "" "$line"
             ((line_index++))
         done <<< "$figlet_output"
     else
@@ -110,15 +110,15 @@ gather_user_settings() {
     colorful_echo "4) ${GREEN}Exit\n"
 
     # Get user choice
-    read -rp "Which OS [1-4, or enter for $detected_os]: " choice
+    read -n 1 -rp "Which OS [1-4, or enter for $detected_os]: " choice
 
     selected_os=""
     # If the user presses Enter without entering anything, the choice variable will be empty
     if [[ -z "$choice" ]]; then
-        echo "Proceeding with the default detected OS: $detected_os"
+        colorful_echo "\n\nProceeding with the default detected OS: $detected_os"
         selected_os=$detected_os
     elif [[ "$choice" =~ ^[1-3]$ ]]; then
-        colorful_echo "You chose option ${BLUE}${choice}"
+        colorful_echo "\n\nYou chose option ${BLUE}${choice}"
         declare -A os_types=(
             [1]="WSL"
             [2]="Ubuntu"
@@ -126,10 +126,10 @@ gather_user_settings() {
         )
         selected_os=${os_types[$choice]}
     elif [[ "$choice" == "4" ]]; then
-        echo "${YELLOW}Exiting without making any changes. Have a nice day!"
+        colorful_echo "\n\n${YELLOW}Exiting without making any changes. Have a nice day!"
         exit 0
     else
-        echo "⛔ ${RED}Invalid choice.${YELLOW} Exiting..."
+        colorful_echo "\n\n⛔ ${RED}Invalid choice.${YELLOW} Exiting..."
         exit 1
     fi
 
@@ -163,24 +163,39 @@ gather_user_settings() {
     printf "%${passphrase_length}s\n" | tr ' ' '🔑'
 
     # get default development folder, defaults to ~/dev
-    read -rp "$(echo -e "${BLUE}Dev Folder" "${GREEN}[${YELLOW}~/dev${GREEN}]${WHITE}:${GREEN}")" DEV_FOLDER
+    DEV_FOLDER=~/dev
+    read -rp "$(echo -e "${BLUE}Dev Folder" "${GREEN}[${YELLOW}${DEV_FOLDER}${GREEN}]${WHITE}:${GREEN}")" DEV_FOLDER
     DEV_FOLDER="${DEV_FOLDER:-~/dev}"
 
     # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
     # Confirm Info
     showScreen "dotFiles / Setup / Confirmation"
 
-    echo ""
-    colorful_echo "📝 ${BLUE}Please confirm your settings"
-    colorful_echo "🖥️  ${BLUE}OS Selected${WHITE}: ${GREEN}${selected_os}"
-    colorful_echo "📬   ${BLUE}User Info${WHITE}: ${GREEN}${USERNAME} <${USEREMAIL}>"
-    colorful_echo "🏠 ${BLUE}Home Folder${WHITE}: ${GREEN}${HOME}"
-    [[ ! -d "$HOME/.oh-my-zsh" ]] && colorful_echo "📜 ${BLUE}       P10k${WHITE}: ${GREEN}Will be installed"
-    command_exists "brew" || colorful_echo "🍺 ${BLUE}Homebrew${WHITE}: ${YELLOW}Not Installed"
-    command_exists "git" || colorful_echo "🐙 ${BLUE}       Git${WHITE}: ${YELLOW}Not Installed"
+    pk10_status="${GREEN}Installed"
+    if [[ -d "$HOME/.oh-my-zsh" ]] ; then
+        pk10_status="${YELLOW}Skipping, already installed"        
+    fi
+    hb_status="${GREEN}Installed"
+    if [[ -d "/opt/homebrew" ]] ; then
+        hb_status="${YELLOW}Skipping, already installed"
+    fi
+    git_status="${GREEN}Installed"
+    if command_exists git ; then
+        git_status="${YELLOW}Skipping, already installed"
+    fi
 
-    echo -en "\n👋 ${WHITE}Are you ready to run first time setup? ${GREEN}[y/N]"
-    read -n 1 -r response
+    echo ""
+    colorful_echo "${BLUE}Please confirm your settings\n"
+    colorful_echo " 🖥️  ${BLUE}OS Selected${WHITE}: ${GREEN}${selected_os}"
+    colorful_echo " 📬    ${BLUE}User Info${WHITE}: ${GREEN}${USERNAME} <${USEREMAIL}>"
+    colorful_echo " 🏠  ${BLUE}Home Folder${WHITE}: ${GREEN}${HOME}"
+    colorful_echo " 📁   ${BLUE}Dev Folder${WHITE}: ${GREEN}${DEV_FOLDER}"
+    colorful_echo " 📜 ${BLUE}        P10k${WHITE}: ${pk10_status}"
+    colorful_echo " 🍺 ${BLUE}    Homebrew${WHITE}: ${hb_status}"
+    colorful_echo " 🐙 ${BLUE}         Git${WHITE}: ${git_status}"
+
+    echo -en "\n👋 ${WHITE}Are you ready to run first time setup? ${GREEN}[y/N]${NC}"
+    read -n 1 -sr response
 
     if [[ $response =~ ^[Yy]$ ]]
     then
@@ -202,10 +217,10 @@ setup_identity() {
         exit 112
     fi
 
-    if [[ ! -d "$HOME/.gnupg" ]]; then
-        mkdir "$HOME/.gnupg"
-        chown -R "$(whoami)" "$HOME/.gnupg"
-        chmod 700 "$HOME/.gnupg"
+    if [[ ! -d "${HOME}/.gnupg" ]]; then
+        mkdir "${HOME}/.gnupg"
+        chown -R "$(whoami)" "${HOME}/.gnupg"
+        chmod 700 "${HOME}/.gnupg"
 
         # find ~/.gnupg -type f -exec chmod 600 {} \; # Set 600 for files
         # find ~/.gnupg -type d -exec chmod 700 {} \; # Set 700 for directories
@@ -265,8 +280,8 @@ setup_shell() {
     # create the post install file for this run
     init_post_install_tasks
 
-    if [[ ! -d "$HOME/bin/" ]]; then
-        mkdir "$HOME/bin"
+    if [[ ! -d "${HOME}/bin/" ]]; then
+        mkdir "${HOME}/bin"
         colorful_echo "   • ${BLUE}Created bin folder${WHITE}.\n"
     fi
     add_config_to_shells "PERSONAL-BIN" <<'EOF'
@@ -485,10 +500,10 @@ setup_git() {
         cp ./templates/gitignore_global "$HOME/.gitignore_global"
     fi
 
-    if [[ ! -d "$HOME/.git-hooks" ]]; then
-        mkdir -p "$HOME/.git-hooks"
-        cp ./templates/pre-commit "$HOME/.git-hooks/pre-commit"
-        chmod +x "$HOME/.git-hooks/pre-commit"
+    if [[ ! -d "${HOME}/.git-hooks" ]]; then
+        mkdir -p "${HOME}/.git-hooks"
+        cp ./templates/pre-commit "${HOME}/.git-hooks/pre-commit"
+        chmod +x "${HOME}/.git-hooks/pre-commit"
     fi
 
     # setup gpg
