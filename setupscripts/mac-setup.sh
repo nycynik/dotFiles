@@ -55,7 +55,10 @@ install_brew_package "bash" # upgrade to the latest bash, OSX is lagging, so thi
 add_post_install_instructions "Tools" "Install Rectangle, QLMarkdown, QLColorCode, they are added to the Applications folder, but need to be opened and approved to use."
 
 # Docker
-install_brew_package "docker"
+if [[ ! -d "/Applications/Docker.app" ]]; then
+    # if not manually installed.
+    install_brew_package "docker"
+fi
 add_post_install_instructions "Tools" "You may need to launch Docker and approve it to run."
 mkdir -p ~/.oh-my-zsh/completions
 add_post_install_instructions "Tools" "once you approve docker you can then run docker completion zsh > ~/.oh-my-zsh/completions/_docker"
