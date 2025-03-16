@@ -21,6 +21,7 @@ sudo apt update && sudo apt upgrade -y
 sudo apt-get install gnupg2 -y
 
 install_brew_package "htop"
+install_brew_package "docker"
 
 add_post_install_instructions "SSH Agent" "Add your ssh keys to the keychain by running 'ssh-add -K ~/.ssh/<id>'"
 
