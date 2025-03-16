@@ -380,10 +380,17 @@ EOF
         ssh-keygen -t ed25519 -C "$USEREMAIL" -f "$HOME/.ssh/github_key"
         ssh-add ~/.ssh/github_key
 
+<<<<<<< HEAD
         add_post_install_instructions "SSH" "Add your SSH keys for git to github.com (pbcopy < ~/.ssh/github_key on mac) https://github.com/settings/keys "
         colorful_echo "   • ${BLUE}Created ${GREEN}~/.ssh/github_key${WHITE}."
     fi
     replace_config_in_file "SSH-GITHUB" "${HOME}/.ssh/config" << 'EOF'
+=======
+    add_post_install_instructions "SSH" "Add your SSH keys for git to github.com (pbcopy < ~/.ssh/github_key on mac) https://github.com/settings/keys "
+    colorful_echo "   • ${BLUE}Created ${GREEN}~/.ssh/github_key${WHITE}."
+fi
+replace_config_in_file "SSH-GITHUB" "${HOME}/.ssh/config" << 'EOF'
+>>>>>>> 420eba0ce0b360d63adff505a3a7b045d18d347d
 Host github.com
   HostName github.com
   User git
@@ -393,6 +400,7 @@ Host github.com
 EOF
 }
 
+<<<<<<< HEAD
 setup_homebrew() {
     # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
     # Setup Homebrew
@@ -402,6 +410,8 @@ setup_homebrew() {
         # Install Homebrew
         colorful_echo "   • ${BLUE}Installing Homebrew${WHITE}."
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+=======
+>>>>>>> 420eba0ce0b360d63adff505a3a7b045d18d347d
 
         # activate brew
         command -v brew || export PATH="/opt/homebrew/bin:/home/linuxbrew/.linuxbrew/bin:/usr/local/bin"
