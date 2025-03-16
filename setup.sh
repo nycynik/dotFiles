@@ -426,6 +426,22 @@ setup_homebrew() {
     showInstallationPart "Homebrew" "Setting up Homebrew for you"
 
     if ! command_exists brew; then
+
+        if ! command_exists curl; then
+            echo "curl must be installed to install brew."
+            if command_exists apt; then
+                sudo apt update && sudo apt upgrade
+                sudo apt install curl
+            elif command_exists yum; then
+                yum install curl
+            elif command_exists pacman; then
+                pacman -S curl
+            else
+                colorful_echo "   • ${RED}curl not installed, and no package manager found to install it.${WHITE}"
+                exit 2  
+            fi
+        fi
+
         # Install Homebrew
         colorful_echo "   • ${BLUE}Installing Homebrew${WHITE}."
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -860,9 +876,9 @@ main() {
     gather_user_settings
 
     # various installations and configurations
+    setup_homebrew      # Homebrew (must be first, used by all the rest)
     setup_identity      # gnupgp
     setup_shell         # Shell config
-    setup_homebrew      # Homebrew
     setup_dev_tools     # various command line tools
     setup_git           # git
 

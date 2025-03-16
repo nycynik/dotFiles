@@ -18,6 +18,12 @@ draw_sub_title "Mac OS Setup"
 draw_a_line "LINE"
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
+# Bash
+cat <<EOT >> ~/.bash_profile
+[[ -r "$(brew --prefix)/etc/profile.d/bash_completion.sh" ]] && . "$(brew --prefix)/etc/profile.d/bash_completion.sh"
+EOT
+
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # keychain for ssh agent
 colorful_echo "   • ${GREEN}Adding ssh keys to keychain${WHITE}."
 ssh-add --apple-use-keychain ~/.ssh/id_ed25519
@@ -48,6 +54,11 @@ install_brew_package "bash" # upgrade to the latest bash, OSX is lagging, so thi
 
 add_post_install_instructions "Tools" "Install Rectangle, QLMarkdown, QLColorCode, they are added to the Applications folder, but need to be opened and approved to use."
 
+# Docker
+install_brew_package "docker"
+add_post_install_instructions "Tools" "You may need to launch Docker and approve it to run."
+mkdir -p ~/.oh-my-zsh/completions
+add_post_install_instructions "Tools" "once you approve docker you can then run docker completion zsh > ~/.oh-my-zsh/completions/_docker"
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # Ruby

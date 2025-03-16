@@ -24,6 +24,11 @@ install_brew_package "htop"
 
 add_post_install_instructions "SSH Agent" "Add your ssh keys to the keychain by running 'ssh-add -K ~/.ssh/<id>'"
 
+cat <<EOT >> ~/.bashrc
+if [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+fi
+EOT
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # all done
