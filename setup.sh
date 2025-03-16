@@ -345,6 +345,7 @@ if [ -d ~/.bash_completion.d ]; then
 fi
 EOF
 
+    # ------------
     # SSH Config
     if [[ ! -d "$HOME/.ssh" ]]; then
         mkdir "$HOME/.ssh"
@@ -357,9 +358,21 @@ EOF
         colorful_echo "   • ${BLUE}Created ${GREEN}~/.ssh/config${WHITE}."
     fi
 
-    # create keys if they don't exist
+    # ssh-agent key setup
     eval "$(ssh-agent -s)" > /dev/null
+    add_config_to_shells "SSHKEYS" <<'EOF'
+# Start SSH Agent if not running
+if ! pgrep -u "$USER" ssh-agent > /dev/null; then
+    eval "$(ssh-agent -s)" > /dev/null
+fi
 
+# Automatically add keys if they are not already loaded
+if ! ssh-add -l > /dev/null 2>&1; then
+    ssh-add ~/.ssh/github_key ~/.ssh/id_ed25519 2>/dev/null
+fi
+EOF
+
+    # create keys if they don't exist
     if [[ ! -f "$HOME/.ssh/id_ed25519" ]]; then
         ssh-keygen -t ed25519 -C "$USEREMAIL" -f "$HOME/.ssh/id_ed25519"
         ssh-add ~/.ssh/id_ed25519
@@ -374,7 +387,6 @@ Host *
   IdentityFile ~/.ssh/id_ed25519
   AddKeysToAgent yes
 EOF
-
 
     if [[ ! -f "$HOME/.ssh/github_key" ]]; then
         ssh-keygen -t ed25519 -C "$USEREMAIL" -f "$HOME/.ssh/github_key"
