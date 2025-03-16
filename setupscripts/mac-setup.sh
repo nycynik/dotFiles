@@ -19,12 +19,23 @@ draw_a_line "LINE"
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # keychain for ssh agent
-colorful_echo "${WHITE}   • ${GREEN}Adding ssh keys to keychain"
+colorful_echo "   • ${GREEN}Adding ssh keys to keychain${WHITE}."
 ssh-add --apple-use-keychain ~/.ssh/id_ed25519
 ssh-add --apple-use-keychain ~/.ssh/github_key
-add_config_to_shells "SSH_AGENT" <<'EOF'
-eval "$(ssh-agent -s)" > /dev/null
+
+replace_config_in_shells "SSHKEYS" <<'EOF'
+# MacOS Specific Version to use keychain.
+# Start SSH Agent if not running
+if ! pgrep -u "$USER" ssh-agent > /dev/null; then
+    eval "$(ssh-agent -s)" > /dev/null
+fi
+
+# Automatically add keys if they are not already loaded
+if ! ssh-add -l > /dev/null 2>&1; then
+    ssh-add --apple-use-keychain ~/.ssh/github_key ~/.ssh/id_ed25519 2>/dev/null
+fi
 EOF
+
 add_post_install_instructions "SSH" "Add your ssh keys to the keychain by running 'ssh-add --apple-use-keychain ~/.ssh/<id>' for any additional keys"
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------

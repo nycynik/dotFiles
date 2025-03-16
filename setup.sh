@@ -24,16 +24,16 @@ showInstallationPart() {
     if command_exists figlet; then
         # this is when I realized I was having way too much fun.
         # Define an array of colors
-        colors=("${CYAN}" "${CYAN}" "${LIGHT_CYAN}" "${WHITE}" "${LIGHT_CYAN}" "${CYAN}" "${CYAN}" "${CYAN}" )
-        color_count=${#colors[@]}  # Get the number of colors
-        line_index=0
+        local colors=("${CYAN}" "${CYAN}" "${LIGHT_CYAN}" "${WHITE}" "${LIGHT_CYAN}" "${CYAN}" "${CYAN}" "${CYAN}" )
+        local color_count=${#colors[@]}  # Get the number of colors
+        local line_index=0
 
         figlet_output=$(figlet -f graffiti "${word}")
         while IFS= read -r line; do
             # Calculate padding for centering
             padding=$(( ($BOX_WIDTH - ${#line}) / 2 ))
             current_color="${colors[$((line_index % color_count))]}"
-            printf "%*s${current_color}%s\n" "$padding" "" "$line"
+            printf "%*s${BOLD}${current_color}%s${NC}\n" "$padding" "" "$line"
             ((line_index++))
         done <<< "$figlet_output"
     else
@@ -110,15 +110,15 @@ gather_user_settings() {
     colorful_echo "4) ${GREEN}Exit\n"
 
     # Get user choice
-    read -rp "Which OS [1-4, or enter for $detected_os]: " choice
+    read -n 1 -rp "Which OS [1-4, or enter for $detected_os]: " choice
 
     selected_os=""
     # If the user presses Enter without entering anything, the choice variable will be empty
     if [[ -z "$choice" ]]; then
-        echo "Proceeding with the default detected OS: $detected_os"
+        colorful_echo "\n\nProceeding with the default detected OS: $detected_os"
         selected_os=$detected_os
     elif [[ "$choice" =~ ^[1-3]$ ]]; then
-        colorful_echo "You chose option ${BLUE}${choice}"
+        colorful_echo "\n\nYou chose option ${BLUE}${choice}"
         declare -A os_types=(
             [1]="WSL"
             [2]="Ubuntu"
@@ -126,10 +126,10 @@ gather_user_settings() {
         )
         selected_os=${os_types[$choice]}
     elif [[ "$choice" == "4" ]]; then
-        echo "${YELLOW}Exiting without making any changes. Have a nice day!"
+        colorful_echo "\n\n${YELLOW}Exiting without making any changes. Have a nice day!"
         exit 0
     else
-        echo "⛔ ${RED}Invalid choice.${YELLOW} Exiting..."
+        colorful_echo "\n\n⛔ ${RED}Invalid choice.${YELLOW} Exiting..."
         exit 1
     fi
 
@@ -163,24 +163,39 @@ gather_user_settings() {
     printf "%${passphrase_length}s\n" | tr ' ' '🔑'
 
     # get default development folder, defaults to ~/dev
-    read -rp "$(echo -e "${BLUE}Dev Folder" "${GREEN}[${YELLOW}~/dev${GREEN}]${WHITE}:${GREEN}")" DEV_FOLDER
+    DEV_FOLDER=~/dev
+    read -rp "$(echo -e "${BLUE}Dev Folder" "${GREEN}[${YELLOW}${DEV_FOLDER}${GREEN}]${WHITE}:${GREEN}")" DEV_FOLDER
     DEV_FOLDER="${DEV_FOLDER:-~/dev}"
 
     # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
     # Confirm Info
     showScreen "dotFiles / Setup / Confirmation"
 
-    echo ""
-    colorful_echo "📝 ${BLUE}Please confirm your settings"
-    colorful_echo "🖥️  ${BLUE}OS Selected${WHITE}: ${GREEN}${selected_os}"
-    colorful_echo "📬   ${BLUE}User Info${WHITE}: ${GREEN}${USERNAME} <${USEREMAIL}>"
-    colorful_echo "🏠 ${BLUE}Home Folder${WHITE}: ${GREEN}${HOME}"
-    [[ ! -d "$HOME/.oh-my-zsh" ]] && colorful_echo "📜 ${BLUE}       P10k${WHITE}: ${GREEN}Will be installed"
-    command_exists "brew" || colorful_echo "🍺 ${BLUE}Homebrew${WHITE}: ${YELLOW}Not Installed"
-    command_exists "git" || colorful_echo "🐙 ${BLUE}       Git${WHITE}: ${YELLOW}Not Installed"
+    pk10_status="${GREEN}Installed"
+    if [[ -d "$HOME/.oh-my-zsh" ]] ; then
+        pk10_status="${YELLOW}Skipping, already installed"
+    fi
+    hb_status="${GREEN}Installed"
+    if [[ -d "/opt/homebrew" ]] ; then
+        hb_status="${YELLOW}Skipping, already installed"
+    fi
+    git_status="${GREEN}Installed"
+    if command_exists git ; then
+        git_status="${YELLOW}Skipping, already installed"
+    fi
 
-    echo -en "\n👋 ${WHITE}Are you ready to run first time setup? ${GREEN}[y/N]"
-    read -n 1 -r response
+    echo ""
+    colorful_echo "${BLUE}Please confirm your settings\n"
+    colorful_echo " 🖥️  ${BLUE}OS Selected${WHITE}: ${GREEN}${selected_os}"
+    colorful_echo " 📬    ${BLUE}User Info${WHITE}: ${GREEN}${USERNAME} <${USEREMAIL}>"
+    colorful_echo " 🏠  ${BLUE}Home Folder${WHITE}: ${GREEN}${HOME}"
+    colorful_echo " 📁   ${BLUE}Dev Folder${WHITE}: ${GREEN}${DEV_FOLDER}"
+    colorful_echo " 📜 ${BLUE}        P10k${WHITE}: ${pk10_status}"
+    colorful_echo " 🍺 ${BLUE}    Homebrew${WHITE}: ${hb_status}"
+    colorful_echo " 🐙 ${BLUE}         Git${WHITE}: ${git_status}"
+
+    echo -en "\n👋 ${WHITE}Are you ready to run first time setup? ${GREEN}[y/N]${NC}"
+    read -n 1 -sr response
 
     if [[ $response =~ ^[Yy]$ ]]
     then
@@ -202,10 +217,10 @@ setup_identity() {
         exit 112
     fi
 
-    if [[ ! -d "$HOME/.gnupg" ]]; then
-        mkdir "$HOME/.gnupg"
-        chown -R "$(whoami)" "$HOME/.gnupg"
-        chmod 700 "$HOME/.gnupg"
+    if [[ ! -d "${HOME}/.gnupg" ]]; then
+        mkdir "${HOME}/.gnupg"
+        chown -R "$(whoami)" "${HOME}/.gnupg"
+        chmod 700 "${HOME}/.gnupg"
 
         # find ~/.gnupg -type f -exec chmod 600 {} \; # Set 600 for files
         # find ~/.gnupg -type d -exec chmod 700 {} \; # Set 700 for directories
@@ -265,8 +280,8 @@ setup_shell() {
     # create the post install file for this run
     init_post_install_tasks
 
-    if [[ ! -d "$HOME/bin/" ]]; then
-        mkdir "$HOME/bin"
+    if [[ ! -d "${HOME}/bin/" ]]; then
+        mkdir "${HOME}/bin"
         colorful_echo "   • ${BLUE}Created bin folder${WHITE}.\n"
     fi
     add_config_to_shells "PERSONAL-BIN" <<'EOF'
@@ -345,6 +360,7 @@ if [ -d ~/.bash_completion.d ]; then
 fi
 EOF
 
+    # ------------
     # SSH Config
     if [[ ! -d "$HOME/.ssh" ]]; then
         mkdir "$HOME/.ssh"
@@ -357,9 +373,21 @@ EOF
         colorful_echo "   • ${BLUE}Created ${GREEN}~/.ssh/config${WHITE}."
     fi
 
-    # create keys if they don't exist
+    # ssh-agent key setup
     eval "$(ssh-agent -s)" > /dev/null
+    add_config_to_shells "SSHKEYS" <<'EOF'
+# Start SSH Agent if not running
+if ! pgrep -u "$USER" ssh-agent > /dev/null; then
+    eval "$(ssh-agent -s)" > /dev/null
+fi
 
+# Automatically add keys if they are not already loaded
+if ! ssh-add -l > /dev/null 2>&1; then
+    ssh-add ~/.ssh/github_key ~/.ssh/id_ed25519 2>/dev/null
+fi
+EOF
+
+    # create keys if they don't exist
     if [[ ! -f "$HOME/.ssh/id_ed25519" ]]; then
         ssh-keygen -t ed25519 -C "$USEREMAIL" -f "$HOME/.ssh/id_ed25519"
         ssh-add ~/.ssh/id_ed25519
@@ -374,7 +402,6 @@ Host *
   IdentityFile ~/.ssh/id_ed25519
   AddKeysToAgent yes
 EOF
-
 
     if [[ ! -f "$HOME/.ssh/github_key" ]]; then
         ssh-keygen -t ed25519 -C "$USEREMAIL" -f "$HOME/.ssh/github_key"
@@ -459,34 +486,116 @@ EOF
 
 }
 
+# Description:
+#   Sets up git. This is safe to call twice, but will override all the git
+#   settings that are configured here.
+#   * Creates .gitconfig if it does not exist
+#   * Sets up global config
+#   * Creates .gitignore_global
+#   * Creates, or adds global git-hooks to include pre-commit.
+#
+# Usage:
+#   setup_git
 setup_git() {
     # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
     # Setup Git
-    showInstallationPart "Git" "Setting up Git and git config"
+    showInstallationPart "Git" "Setting up Git and configuring it"
 
     install_brew_package "git"
-    if [[ ! -f "$HOME/.gitconfig" ]]; then
-        cp ./templates/.gitconfig "$HOME/.gitconfig"
-    fi
 
-    if [[ ! -f "$HOME/.gitignore_global" ]]; then
-        cp ./templates/gitignore_global "$HOME/.gitignore_global"
-    fi
+    # setup gitconfig
+    tagFile "$HOME/.gitconfig"
+    # Add all the config
+    # Core settings
+    git config --global core.editor "nano"
+    git config --global core.excludesfile "${HOME}/.gitignore_global"
+    git config --global core.hooksPath "${HOME}/.git-hooks"
 
-    if [[ ! -d "$HOME/.git-hooks" ]]; then
-        mkdir -p "$HOME/.git-hooks"
-        cp ./templates/pre-commit "$HOME/.git-hooks/pre-commit"
-        chmod +x "$HOME/.git-hooks/pre-commit"
-    fi
+    # Aliases
+    git config --global alias.br "branch"
+    git config --global alias.ci "commit -S"
+    git config --global alias.cia "commit -Sa"
+    git config --global alias.cd "commit -S --amend"
+    git config --global alias.cad "commit -S --amend --no-edit"
+    git config --global alias.co "checkout"
+    # shellcheck disable=SC2016
+    git config --global alias.co-push '!f() { git checkout -b $1; git push --set-upstream ${2:-origin} $1; }; f'
+    git config --global alias.dump "cat-file -p"
+    git config --global alias.fixup "!git log -n 50 --pretty=format:'%h %s' --no-merges | fzf | cut -c -7 | xargs -o git commit --fixup"
+    git config --global alias.h "!git log --oneline --decorate --all"
+    git config --global alias.hist "log --pretty=format:'%C(yellow)[%ad]%C(reset) %C(green)[%h]%C(reset) | %C(red)%s %C(bold red){{%an}}%C(reset) %C(blue)%d%C(reset)' --graph --date=short"
+    git config --global alias.last "log -1 HEAD"
+    git config --global alias.ls "ls-files"
+    git config --global alias.lsf "!git ls-files | grep -i"
+    git config --global alias.p "pull --rebase"
+    git config --global alias.st "status"
+    git config --global alias.ss "status -s"
+    git config --global alias.type "cat-file -t"
+
+    # Delta settings
+    git config --global delta.features "line-numbers decorations"
+    git config --global delta.line-numbers "true"
+
+    # Help settings (100th of seconds 5=.5s, 10=1s)
+    git config --global help.autoCorrect "20"
+
+    # Init settings
+    git config --global init.defaultBranch "main"
 
     # setup gpg
-    git config --global user.signingkey "$gpgkey"
     git config --global commit.gpgsign true
     git config --global gpg.program gpg
 
     # setup user info
+    git config --global user.signingkey "$gpgkey"
     git config --global user.name "$USERNAME"
     git config --global user.email "$USEREMAIL"
+
+    colorful_echo "   • ${GREEN}Setup git aliases{$WHITE}."
+
+    tagFile "$HOME/.gitignore_global"
+    replace_config_in_file "GITIGNORE" "$HOME/.gitignore_global" <<'EOF'
+# Mac
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+.AppleDouble
+.LSOverride
+
+# Win
+Desktop.ini
+ehthumbs.db
+Thumbs.db
+EOF
+    colorful_echo "   • ${GREEN}Setup global git ignore{$WHITE}."
+
+
+    # githooks
+    if [[ ! -d "${HOME}/.git-hooks" ]]; then
+        mkdir -p "${HOME}/.git-hooks"
+        cp ./templates/pre-commit "${HOME}/.git-hooks/pre-commit"
+        chmod +x "${HOME}/.git-hooks/pre-commit"
+    fi
+
+    colorful_echo "   • ${GREEN}Setup git hooks{$WHITE}."
+
+    # GitHub CLI Setup
+    install_brew_package "gh" # github CLI
+
+    gh config set editor code
+
+    # gh aliases
+    gh alias set bugs 'issue list --label=bugs'
+    gh alias set 'issue mine' 'issue list --mention @me'
+    gh alias set homework 'issue list --assignee @me'
+    gh alias set 'issue mine --open' 'issue list --mention @me --state open'
+    gh alias set homework-open 'issue list --assignee @me --state open'
+
+    colorful_echo "   • ${GREEN}Setup GitHub CLI{$WHITE}."
+
+    add_post_install_instructions "git" "authenticate with github CLI using 'git auth login'"
 }
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------

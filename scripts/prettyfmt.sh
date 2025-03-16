@@ -4,43 +4,48 @@
 #  Colors
 # ---------------------------------------------------------
 # Colors for printing
-BLACK='\033[0;30m'
-LIGHT_BLACK='\033[1;30m'
-RED='\033[0;31m'
-LIGHT_RED='\033[1;31m'
-GREEN='\033[0;32m'
-LIGHT_GREEN='\033[1;32m'
-YELLOW='\033[0;33m'
-LIGHT_YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-LIGHT_BLUE='\033[1;34m'
-PURPLE='\033[0;35m'
-LIGHT_PURPLE='\033[1;35m'
-CYAN='\033[0;36m'
-LIGHT_CYAN='\033[1;36m'
-WHITE='\033[0;37m'
-LIGHT_WHITE='\033[1;37m'
-ORANGE='\033[0;91m'
-LIGHT_ORANGE='\033[1;91m'
-GRAY='\033[0;90m'
-LIGHT_GRAY='\033[1;90m'
+RED=$(tput setaf 1)
+GREEN=$(tput setaf 2)
+YELLOW=$(tput setaf 3)
+BLUE=$(tput setaf 4)
+PURPLE=$(tput setaf 5)
+CYAN=$(tput setaf 6)
+WHITE=$(tput setaf 7)
+ORANGE=$(tput setaf 208)
+GRAY=$(tput setaf 8)
+LIGHT_RED=$(tput setaf 9)
+LIGHT_GREEN=$(tput setaf 10)
+LIGHT_YELLOW=$(tput setaf 11)
+LIGHT_BLUE=$(tput setaf 12)
+LIGHT_PURPLE=$(tput setaf 13)
+LIGHT_CYAN=$(tput setaf 14)
+LIGHT_WHITE=$(tput setaf 15)
+LIGHT_ORANGE=$(tput setaf 209)
+LIGHT_GRAY=$(tput setaf 250)
 
-# Background colors
-On_Red='\033[41m'         # Red
-On_Cyan='\033[46m'        # Cyan
-On_Blue='\033[44m'        # Blue
-On_Black='\033[40m'       # Black
-On_White='\033[47m'       # White
-On_Green='\033[42m'       # Green
-On_Yellow='\033[43m'      # Yellow
-On_Purple='\033[45m'      # Purple
-On_Gray='\033[100m'       # Gray
-# Text formatting
-BOLD='\033[1m'
-UNDERLINE='\033[4m'
-ITALIC='\033[3m'
+# Background Colors
+BG_RED=$(tput setab 1)
+BG_GREEN=$(tput setab 2)
+BG_YELLOW=$(tput setab 3)
+BG_BLUE=$(tput setab 4)
+BG_PURPLE=$(tput setab 5)
+BG_CYAN=$(tput setab 6)
+BG_WHITE=$(tput setab 7)
+BG_ORANGE=$(tput setab 208)
+BG_GRAY=$(tput setab 8)
+BG_LIGHT_RED=$(tput setab 9)
+BG_LIGHT_GREEN=$(tput setab 10)
+BG_LIGHT_YELLOW=$(tput setab 11)
+BG_LIGHT_BLUE=$(tput setab 12)
+
 # Reset color
-NC='\033[0m' # No Color
+NC=$(tput sgr0) # No Color
+
+# Text formatting
+BOLD=$(tput bold)
+DIM=$(tput dim)
+ITALIC=$(tput sitm)
+UNDERLINE=$(tput smul)
 
 # ---------------------------------------------------------
 #  Boxes
@@ -109,7 +114,7 @@ draw_box() {
     local box_type=${1:-"FULL"}
     local title=${2:-""}
     local draw_box=${3:-true}
-    local bg_color=${4:-$On_Blue}
+    local bg_color=${4:-$BG_BLUE}
     local box_chars
     local width=$BOX_WIDTH
     local height=$HEIGHT
@@ -154,14 +159,14 @@ draw_a_line() {
 # Usage: draw_title <Title>
 draw_title() {
     local title="$1"
-    local bg_color=${2:-$On_Black}
+    local bg_color=${2:-$BG_BLACK}
     draw_box "LINE" "$title" "true" "$bg_color"
 }
 
 draw_sub_title() {
     local title="$1"
     local box_type=${2:-"FULL"}
-    local bg_color=${3:-$On_Black}
+    local bg_color=${3:-$BG_BLACK}
     local box_chars
     local width=$BOX_WIDTH
     local box_width=$((width - 2))
