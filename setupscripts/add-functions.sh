@@ -22,9 +22,9 @@ else
 fi
 
 # load the functions
-if [[ -f "${HOME}/.dotfiles/functions" ]]; then
-    source "${HOME}/.dotfiles/functions"
+if [[ -f "functions" ]]; then
+    source "functions"
 else
-    colorful_echo "⛔ Could not find ${GREEN}~/.dotfiles/functions${WHITE}. ${YELLOW}Exiting${WHITE}..."
+    colorful_echo "⛔ Could not find ${GREEN}functions${WHITE} in the directory this script was run from. ${YELLOW}Exiting${WHITE}..."
     exit 102
 fi
