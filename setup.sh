@@ -527,6 +527,8 @@ setup_git() {
     git config --global core.excludesfile "${HOME}/.gitignore_global"
     git config --global core.hooksPath "${HOME}/.git-hooks"
 
+    git config --global color.ui auto
+
     # Aliases
     git config --global alias.br "branch"
     git config --global alias.ci "commit -S"
