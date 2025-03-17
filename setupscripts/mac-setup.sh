@@ -29,6 +29,18 @@ colorful_echo "   • ${GREEN}Adding ssh keys to keychain${WHITE}."
 ssh-add --apple-use-keychain ~/.ssh/id_ed25519
 ssh-add --apple-use-keychain ~/.ssh/github_key
 
+replace_config_in_file "SSH-GITHUB" "${HOME}/.ssh/config" << 'EOF'
+Host github.com
+  HostName github.com
+  User git
+  UseKeychain yes
+  AddKeysToAgent yes  
+  IdentityFile ~/.ssh/github_key
+  IdentitiesOnly yes
+  ForwardX11 no
+EOF
+
+
 replace_config_in_shells "SSHKEYS" <<'EOF'
 # MacOS Specific Version to use keychain.
 # Start SSH Agent if not running
