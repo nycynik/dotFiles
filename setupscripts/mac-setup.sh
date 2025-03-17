@@ -34,7 +34,7 @@ Host github.com
   HostName github.com
   User git
   UseKeychain yes
-  AddKeysToAgent yes  
+  AddKeysToAgent yes
   IdentityFile ~/.ssh/github_key
   IdentitiesOnly yes
   ForwardX11 no
