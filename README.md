@@ -2,7 +2,10 @@
 
 There are quite a few dotfiles [out there in the world](https://dotfiles.github.io/), but this one is mine.
 
-Built for development.
+Built for development on a mac or Linus OS, also works in WSL. 
+
+More of n installation script than just dot files. this is how i configure my new computer when i get one. 
+
 
 *Python | PHP | Java | Node | Dart | Swift*
 
