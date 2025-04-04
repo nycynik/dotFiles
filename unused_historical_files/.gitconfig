@@ -1,0 +1,44 @@
+[core]
+  editor = nano
+  excludesfile = ~/.gitignore_global
+  hooksPath = ~/.git-hooks
+
+[alias]
+  br = branch
+  #
+  ci = commit -S
+  cia = commit -Sa
+  cd = commit -S --amend
+  cad = commit -S --amend --no-edit
+  #
+  co = checkout
+  co-push = '!f() { git checkout -b $1; git push --set-upstream ${2:-origin} $1; }; f'
+  #
+  dump = 'cat-file -p'
+  #
+  fixup = "!git log -n 50 --pretty=format:'%h %s' --no-merges | fzf | cut -c -7 | xargs -o git commit --fixup"
+  #
+  h = 'git log --oneline --decorate --all'
+  hist = "log --pretty=format:'%C(yellow)[%ad]%C(reset) %C(green)[%h]%C(reset) | %C(red)%s %C(bold red){{%an}}%C(reset) %C(blue)%d%C(reset)' --graph --date=short"
+  #
+  last = "log -1 HEAD"
+  #
+  ls = ls-files
+  lsf = !git ls-files | grep -i
+  #
+  p = 'pull --rebase'
+  #
+  st = status
+  ss = status -s
+  #
+  type = 'cat-file -t'
+
+[delta]
+  features = line-numbers decorations
+  line-numbers = true
+
+[help]
+  autoCorrect = 5
+
+[init]
+  defaultBranch = main

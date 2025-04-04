@@ -1,11 +1,11 @@
-# 
+#
 # PYTHON
 #
 
 # pip
 # pip should only run if there is a virtualenv currently activated
 # WARNING: This has been reversed, as I am using conda now much more,
-# and it does not show up as a virtualenv, so this is false now, 
+# and it does not show up as a virtualenv, so this is false now,
 # instead of true.
 export PIP_REQUIRE_VIRTUALENV=false
 
@@ -13,11 +13,11 @@ gpip(){
    PIP_REQUIRE_VIRTUALENV="" pip "$@"
 }
 
-# 
+#
 # VIRTUAL ENVS
 #
 if [ -d "$HOME/.rbenv" ]; then
-	eval "$(rbenv init -)"; 
+	eval "$(rbenv init -)";
 fi
 
 if [ -d "$HOME/.jenv/" ]; then
@@ -40,7 +40,7 @@ fi
 # maven, rvm, gvm if they exist, include them. (should be at the end.)
 [[ -s "$HOME/bin/mvn.sh" ]] && source ~/bin/mvn.sh
 # Load RVM into a shell session *as a function*
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" 
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
 [[ -s "$HOME/.gvm/bin/gvm-init.sh" ]] && source "$HOME/.gvm/bin/gvm-init.sh"
 
 #
@@ -58,4 +58,3 @@ if [ -n "$ORACLE_HOME" ]; then
 	export TNS_ADMIN=$HOME/etc
 	export PATH=$PATH:$ORACLE_HOME
 fi
-

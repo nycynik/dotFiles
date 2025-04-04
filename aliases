@@ -46,11 +46,16 @@ alias explorer='explorer.exe'
 #   ------------------------------------------
 alias lr='ls -R | grep ":$" | sed -e '\''s/:$//'\'' -e '\''s/[^-][^\/]*\//--/g'\'' -e '\''s/^/   /'\'' -e '\''s/-/|/'\'' | less'
 
-#   ll: Using exa 
+#   ll: Using exa
 #   ------------------------------------------
-alias ll='eza --icons --hyperlink -la'
+alias la='eza --icons --hyperlink -la'
+alias ll='eza --icons --hyperlink -l'
 alias ls='eza --icons'
 alias lsls='command ls'
+
+#   pnpm: node package manager
+#   ------------------------------------------
+alias pn='pnpm'
 
 #   mans:   Search manpage given in agument '1' for term given in argument '2' (case insensitive)
 #           displays paginated result with colored search terms and two lines surrounding each hit.             Example: mans mplayer codec
@@ -68,7 +73,7 @@ alias lsls='command ls'
 #   3.  FILE AND FOLDER MANAGEMENT
 #   -------------------------------
 
-zipf () { zip -r "$1".zip "$1" ; }          # zipf:         To create a ZIP archive of a folder
+    zipf () { zip -r "$1".zip "$1" ; }          # zipf:         To create a ZIP archive of a folder
 alias numFiles='echo $(ls -1 | wc -l)'      # numFiles:     Count of non-hidden files in current dir
 alias space='df -h | head -1 && df -h | grep sd'  # shows remaining space free on sda/sdb drives
 
@@ -224,15 +229,14 @@ alias mountReadWrite='/sbin/mount -uw /'    # mountReadWrite:   For use when boo
     alias screensaverDesktop='/System/Library/Frameworks/ScreenSaver.framework/Resources/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine -background'
 
 #   ---------------------------------------
-#   8.  WEB DEVELOPMENT
+#   8.  DEVELOPMENT
 #   ---------------------------------------
 
-httpHeaders () { /usr/bin/curl -I -L $@ ; }             # httpHeaders:      Grabs headers from web page
+    httpHeaders () { /usr/bin/curl -I -L $@ ; }             # httpHeaders:      Grabs headers from web page
 
 #   httpDebug:  Download a web page and show info on what took time
 #   -------------------------------------------------------------------
     httpDebug () { /usr/bin/curl $@ -o /dev/null -w "dns: %{time_namelookup} connect: %{time_connect} pretransfer: %{time_pretransfer} starttransfer: %{time_starttransfer} total: %{time_total}\n" ; }
-
 
 #   ---------------------------------------
 #   9.  REMINDERS & NOTES

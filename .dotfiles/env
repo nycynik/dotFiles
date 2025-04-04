@@ -5,4 +5,3 @@ export DISPLAY=0:0.0
 CLICOLOR=1
 LSCOLORS=ExFxCxDxBxegedabagacad
 export CLICOLOR LSCOLORS
-
