@@ -1,14 +1,18 @@
-name: PR Validation
+name: Main Branch Validation
 
 on:
   pull_request:
     branches: [ main ]
+  push:
+    branches: [ main ]
 
 jobs:
-  pre-commit:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for proper validation
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -22,3 +26,19 @@ jobs:
 
       - name: Run pre-commit
         run: pre-commit run --all-files
+
+      - name: Install bash linter (shellcheck)
+        run: sudo apt-get install -y shellcheck
+
+      - name: Validate shell scripts
+        run: |
+          find . -type f -name "*.sh" -exec shellcheck {} \;
+
+      - name: Ensure script files are executable
+        run: |
+          find ./scripts -type f -name "*.sh" -exec test -x {} \; || { echo "Some script files are not executable"; exit 1; }
+          find ./setupscripts -type f -name "*.sh" -exec test -x {} \; || { echo "Some setup script files are not executable"; exit 1; }
+
+      - name: Check for merge conflicts
+        run: |
+          ! grep -r "^<<<<<<< HEAD" --include="*.sh" --include="*.md" .
