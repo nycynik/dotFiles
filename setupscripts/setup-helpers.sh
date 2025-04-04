@@ -66,8 +66,14 @@ remove_config_from_file() {
     local marker="${marker_string}${name}"
 
     if grep -q "$marker" "$file"; then
-        # Use sed to remove everything between markers
-        sed -i '' "/$marker/,/$marker-END/d" "$file"
+        # Use sed to remove everything between markers, with OS detection
+        if [[ "$(uname)" == "Darwin" ]]; then
+            # macOS
+            sed -i '' "/$marker/,/$marker-END/d" "$file"
+        else
+            # Linux
+            sed -i "/$marker/,/$marker-END/d" "$file"
+        fi
     else
         if [ "$quiet" != "quiet" ]; then
             colorful_echo "   • ${YELLOW}No marker found in ${file}${WHITE}."
@@ -179,7 +185,14 @@ install_zsh_plugin() {
 
     # Enable the plugin in .zshrc if not already enabled
     if ! grep -qE "plugins=.*\b$plugin_name\b" "$zshrc"; then
-        sed -i '' -E "s/(^plugins=\([^)]*)\)/\1 $plugin_name)/" "$zshrc"
+        # OS-specific sed command for modifying the plugins line
+        if [[ "$(uname)" == "Darwin" ]]; then
+            # macOS
+            sed -i '' -E "s/(^plugins=\([^)]*)\)/\1 $plugin_name)/" "$zshrc"
+        else
+            # Linux
+            sed -i -E "s/(^plugins=\([^)]*)\)/\1 $plugin_name)/" "$zshrc"
+        fi
         colorful_echo "   • ${GREEN}Added ${plugin_name} to plugins in .zshrc${WHITE}."
     fi
 }
@@ -286,37 +299,52 @@ tagFile() {
     current_date="$(date +%Y-%m-%d)"
 
     if [[ ! -f "$file" ]]; then
-        # Create new file with creation tag
+        # Create new file with creation tag - fixing the overwrite issue
         touch "$file"
+        # Append tags one by one instead of overwriting
         echo "${author_tag}" > "$file"
-        echo "${created_tag} ${current_date}" > "$file"
+        echo "${created_tag} ${current_date}" >> "$file"
     else
         # Create temporary file
         local temp_file="${file}.tmp"
 
         # If created tag doesn't exist, add it at the beginning
         if ! grep -q "^${created_tag}" "$file"; then
-            echo "${created_tag} ${current_date}" > "$temp_file"
+            echo "${author_tag}" > "$temp_file"
+            echo "${created_tag} ${current_date}" >> "$temp_file"
             cat "$file" >> "$temp_file"
         else
-            # Process the file line by line
-            while IFS= read -r line || [[ -n "$line" ]]; do
-                echo "$line" >> "$temp_file"
-                # If this is the Created line, add Modified right after
-                if [[ "$line" =~ ^"${created_tag}" ]]; then
-                    # Remove any existing modified tag before adding the new one
-                    if ! grep -q "^${modified_tag}" "$file"; then
-                        echo "${modified_tag} ${current_date}" >> "$temp_file"
+            # First pass to clean up any existing modified tags
+            grep -v "^${modified_tag}" "$file" > "$temp_file"
+            
+            # Second pass to add modified tag after the created tag
+            if [[ -f "$temp_file" ]]; then
+                local second_temp="${file}.tmp2"
+                while IFS= read -r line || [[ -n "$line" ]]; do
+                    echo "$line" >> "$second_temp"
+                    # If this is the Created line, add Modified right after
+                    if [[ "$line" =~ ^"${created_tag}" ]]; then
+                        echo "${modified_tag} ${current_date}" >> "$second_temp"
                     fi
-                fi
-            done < "$file"
+                done < "$temp_file"
+                
+                # Replace temp file with second_temp
+                mv "$second_temp" "$temp_file"
+            fi
         fi
 
-        # Remove any other instances of the modified tag
-        sed -i.bak -e "/^${modified_tag}/d" "$temp_file"
+        # OS-specific sed command for any additional cleanup needed
+        if [[ "$(uname)" == "Darwin" ]]; then
+            # macOS - avoid creating a backup file
+            sed -i '' -e 's/  */ /g' "$temp_file"  # just a placeholder cleanup command
+        else
+            # Linux - handle backup extension differently
+            sed -i -e 's/  */ /g' "$temp_file"
+        fi
 
         # Move temporary file back to original
         mv "$temp_file" "$file"
-        rm -f "${file}.bak"
+        # Clean up any backup files
+        rm -f "${file}.bak" "${file}.tmp2" 2>/dev/null
     fi
 }
