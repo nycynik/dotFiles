@@ -124,7 +124,7 @@ git config --global help.autocorrect 5
 echo Dev tools and CLI tools
 echo ----------------------------------------------------------
 
-# if tee is not isntalled, isntall it with brew.
+# if tee is not isntalled, install it with brew.
 if [[ -x "$(command -v tee)" ]]; then
 	brew install tee
 fi
@@ -168,8 +168,9 @@ brew install pipx
 pipx ensurepath
 pip install pre-commit
 
-
-# window tools
+# utils
+echo Utilities
+echo ----------------------------------------
 brew install rectangle 2>&1 | tee -a "${HOME}/.dotfiles/brew_log.log"
 
 brew install eza  2>&1 | tee -a "${HOME}/.dotfiles/brew_log.log"
@@ -180,14 +181,22 @@ if [[ -x "$(command -v xcode-select)" ]]; then
 	xcode-select --install
 fi
 
-echo "Finished Setup"
+# Flutter
 
-read -p "Clean up? " -n 1 -r
+
+echo ==========================================================
+echo "Finished Setup"
+echo ==========================================================
+echo "Remember to run:"
+echo "source ~/.zshrc"
+echo "to update your shell environment"
 echo .
-if [[ $REPLY =~ ^[Yy]$ ]]
-then
-	rm -rf "${HOME}/dotfiles"
-fi
+echo "The log file created in ${HOME}/.dotfiles/brew_log.log"
+echo "contains the output of brew install commands."
+echo .
+echo "Enjoy! 🪁"
+echo ==========================================================
+
 
 
 
