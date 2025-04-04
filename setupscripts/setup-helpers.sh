@@ -316,7 +316,7 @@ tagFile() {
         else
             # First pass to clean up any existing modified tags
             grep -v "^${modified_tag}" "$file" > "$temp_file"
-            
+
             # Second pass to add modified tag after the created tag
             if [[ -f "$temp_file" ]]; then
                 local second_temp="${file}.tmp2"
@@ -327,7 +327,7 @@ tagFile() {
                         echo "${modified_tag} ${current_date}" >> "$second_temp"
                     fi
                 done < "$temp_file"
-                
+
                 # Replace temp file with second_temp
                 mv "$second_temp" "$temp_file"
             fi
