@@ -446,9 +446,36 @@ setup_homebrew() {
         colorful_echo "   • ${BLUE}Installing Homebrew${WHITE}."
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-        # activate brew
+        # activate brew in current session
         command -v brew || export PATH="/opt/homebrew/bin:/home/linuxbrew/.linuxbrew/bin:/usr/local/bin"
         command -v brew && eval "$(brew shellenv)"
+        
+        # Add Homebrew to shell configuration
+        if [[ -d "/home/linuxbrew/.linuxbrew/bin" ]]; then
+            # Linux Homebrew path
+            add_config_to_shells "HOMEBREW-PATH" <<'EOT'
+# Homebrew Path - Linux
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv 2>/dev/null)" || true
+export PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH"
+EOT
+            colorful_echo "   • ${BLUE}Added Homebrew to PATH in shell config (Linux)${WHITE}."
+        elif [[ -d "/opt/homebrew/bin" ]]; then
+            # macOS Homebrew path (Apple Silicon)
+            add_config_to_shells "HOMEBREW-PATH" <<'EOT'
+# Homebrew Path - macOS
+eval "$(/opt/homebrew/bin/brew shellenv 2>/dev/null)" || true
+export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+EOT
+            colorful_echo "   • ${BLUE}Added Homebrew to PATH in shell config (macOS)${WHITE}."
+        elif [[ -d "/usr/local/bin/brew" ]]; then
+            # macOS Homebrew path (Intel)
+            add_config_to_shells "HOMEBREW-PATH" <<'EOT'
+# Homebrew Path - macOS (Intel)
+eval "$(/usr/local/bin/brew shellenv 2>/dev/null)" || true
+export PATH="/usr/local/bin:/usr/local/sbin:$PATH"
+EOT
+            colorful_echo "   • ${BLUE}Added Homebrew to PATH in shell config (macOS Intel)${WHITE}."
+        fi
 
         output="$(brew doctor)"
 
