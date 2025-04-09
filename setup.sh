@@ -490,7 +490,8 @@ setup_dev_tools() {
     install_brew_package "fzf"
     install_brew_package "gawk"
     install_brew_package "figlet"           # draws words
-
+    install_brew_package "p7zip"
+    
     add_post_install_instructions "Tools" "Add vscode to the command line. Launch vscode, c-a-P 'term' and then click add it. If there are any issues, you may need to remove /usr/bin/local/code first."
 
     # asdf
