@@ -1,5 +1,5 @@
-
 services:
+  # Interactive testing environment
   ubuntu-test:
     build: .
     container_name: ubuntu-test
@@ -10,9 +10,14 @@ services:
     environment:
       - TERM=xterm-256color
 
-  # automated-test:
-  #   build: .
-  #   container_name: automated-test
-  #   volumes:
-  #     - ./..:/home/testuser/dotfiles
-  #   command: ["bash", "/home/testuser/dotfiles/test-setup.sh"]
+  # Automated test with simplified setup
+  automated-test:
+    build: .
+    container_name: automated-test
+    volumes:
+      - ./..:/home/testuser/dotfiles
+      - ./test-setup.sh:/home/testuser/test-setup.sh
+    tty: true
+    environment:
+      - TERM=xterm-256color
+    command: bash -c "chmod +x /home/testuser/test-setup.sh && /home/testuser/test-setup.sh || (echo 'Test setup failed, container will remain running for inspection' && tail -f /dev/null)"

@@ -1,0 +1,37 @@
+#!/bin/bash
+# test-setup.sh
+# This script automates the setup process in the Docker container
+
+# Make script exit on error
+set -e
+
+echo "Starting automated test setup..."
+
+# Create answers file for automated testing
+cat > /tmp/answers << EOL
+2
+testuser
+test@example.com
+supersecurepassphrase
+/home/testuser/dev
+y
+EOL
+
+# Make sure we're in the right directory
+cd /home/testuser/dotfiles
+
+# Make all scripts executable
+chmod +x setup.sh
+find setupscripts -name "*.sh" -exec chmod +x {} \;
+
+# Run setup script with predefined answers
+echo "Running setup script with predefined answers..."
+cat /tmp/answers | ./setup.sh
+
+# Print success message
+echo "====================================="
+echo "Automated setup completed successfully!"
+echo "====================================="
+
+# Keep container running to inspect the results
+tail -f /dev/null
