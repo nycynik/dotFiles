@@ -129,6 +129,15 @@ fi
 if [[ ! -d "/Applications/DBeaver.app" ]]; then
     install_brew_package "dbeaver-community"
 fi
+# install cocoapods if not already installed
+if ! command_exists pod; then
+    colorful_echo "  Installing CocoaPods..."
+    sudo gem install cocoapods
+else
+    colorful_echo "  CocoaPods is already installed."
+fi
+
+brew install cocoapods
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 # iOS/Flutter
