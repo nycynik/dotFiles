@@ -11,6 +11,35 @@ BOX_WIDTH=80
 export BOX_WIDTH
 
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
+# keychain for ssh agent
+sudo apt install keychain -y
+
+colorful_echo "   • ${GREEN}Adding ssh keys to keychain${WHITE}."
+
+eval `keychain --eval --agents ssh github`
+ssh-add --apple-use-keychain ~/.ssh/id_ed25519
+ssh-add --apple-use-keychain ~/.ssh/github_key
+
+replace_config_in_file "SSH-GITHUB" "${HOME}/.ssh/config" << 'EOF'
+Host github.com
+  HostName github.com
+  User git
+  AddKeysToAgent yes
+  IdentityFile ~/.ssh/github_key
+  IdentitiesOnly yes
+  ForwardX11 no
+EOF
+
+
+replace_config_in_shells "SSHKEYS" <<'EOF'
+# Start SSH Agent if not running (ubuntu server)
+eval `keychain --eval --agents ssh github_key`
+EOF
+
+add_post_install_instructions "SSH" "Add your ssh keys to the keychain by running 'keychain --eval --agents ssh <id>' for any additional keys"
+
+
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 #   MAiN
 # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
 draw_a_line "LINE"
