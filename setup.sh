@@ -449,7 +449,7 @@ setup_homebrew() {
         # activate brew in current session
         command -v brew || export PATH="/opt/homebrew/bin:/home/linuxbrew/.linuxbrew/bin:/usr/local/bin"
         command -v brew && eval "$(brew shellenv)"
-        
+
         # Add Homebrew to shell configuration
         if [[ -d "/home/linuxbrew/.linuxbrew/bin" ]]; then
             # Linux Homebrew path
@@ -920,6 +920,7 @@ main() {
     setup_python        # Python
     setup_php           # PHP
     setup_ruby          # Ruby
+    setup_rust          # Rust
 
     # OS Specific script per os supported
     draw_title "OS Specific Setup"
