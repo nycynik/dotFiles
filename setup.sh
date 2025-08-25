@@ -861,6 +861,16 @@ export PATH="~/.gem/bin:$PATH"
 EOF
 }
 
+# --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
+# Rust
+setup_rust() {
+    showInstallationPart "Rust" "Setting up Rust for you"
+
+    install_brew_package "rust"
+
+    add_post_install_instructions "Rust" "Add your Rust settings to ~/.cargo/config"
+}
+
 run_os_specific_script() {
     # --------- --------- --------- --------- --------- --------- --------- --------- --------- ---------
     # Run the OS-specific script
