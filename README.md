@@ -18,7 +18,7 @@ More of n installation script than just dot files. this is how i configure my ne
 Step1: Check out the repo in your home dir, that will make a hidden directory called .dotfiles in home.
 
      cd ~
-     git git@github.com:nycynik/dotFiles.git .dotfiles
+     git clone git@github.com:nycynik/dotFiles.git .dotfiles
 
 Step2: Run the setup file and follow the prompts
 
