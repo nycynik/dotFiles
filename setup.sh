@@ -573,6 +573,7 @@ setup_git() {
     git config --global alias.ls "ls-files"
     git config --global alias.lsf "!git ls-files | grep -i"
     git config --global alias.p "pull --rebase"
+    git config --global alias.pushf 'push --force-with-lease'
     git config --global alias.st "status"
     git config --global alias.ss "status -s"
     git config --global alias.type "cat-file -t"
@@ -596,7 +597,12 @@ setup_git() {
     git config --global user.name "$USERNAME"
     git config --global user.email "$USEREMAIL"
 
-    colorful_echo "   • ${GREEN}Setup git aliases{$WHITE}."
+    # merging/rebasing
+    git config --global pull.rebase true
+    git config --global fetch.prune true
+    git config --global diff.colorMoved zebra
+
+    colorful_echo "   • ${GREEN}Setup git aliases${WHITE}."
 
     tagFile "$HOME/.gitignore_global"
     replace_config_in_file "GITIGNORE" "$HOME/.gitignore_global" <<'EOF'
@@ -614,7 +620,7 @@ Desktop.ini
 ehthumbs.db
 Thumbs.db
 EOF
-    colorful_echo "   • ${GREEN}Setup global git ignore{$WHITE}."
+    colorful_echo "   • ${GREEN}Setup global git ignore${WHITE}."
 
 # utils
 
@@ -625,7 +631,7 @@ EOF
         chmod +x "${HOME}/.git-hooks/pre-commit"
     fi
 
-    colorful_echo "   • ${GREEN}Setup git hooks{$WHITE}."
+    colorful_echo "   • ${GREEN}Setup git hooks${WHITE}."
 
     # GitHub CLI Setup
     install_brew_package "gh" # github CLI
@@ -639,7 +645,7 @@ EOF
     gh alias set 'issue mine --open' 'issue list --mention @me --state open'
     gh alias set homework-open 'issue list --assignee @me --state open'
 
-    colorful_echo "   • ${GREEN}Setup GitHub CLI{$WHITE}."
+    colorful_echo "   • ${GREEN}Setup GitHub CLI${WHITE}."
 
     add_post_install_instructions "git" "authenticate with github CLI using 'git auth login'"
 }
