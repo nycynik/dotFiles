@@ -5,3 +5,6 @@
 
 # FVM Version Cache
 .fvm/
+
+brew_diagnostics.log
+

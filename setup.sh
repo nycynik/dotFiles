@@ -211,12 +211,17 @@ setup_identity() {
     # Setup Identity
     showInstallationPart "Identity" "Setting up Identity"
 
-    install_brew_package "gnupg"
+    # See if gpg is installed, if not install it via Homebrew
+    if ! command -v gpg >/dev/null 2>&1; then
+        install_brew_package "gnupg"
+    fi
+    # Verify that gpg was successfully installed
     if ! command -v gpg >/dev/null 2>&1; then
         colorful_echo "   • ${RED}GPG failed to install${WHITE}."
         exit 112
     fi
 
+    # Check if the ~/.gnupg directory exists, if not create it with proper permissions
     if [[ ! -d "${HOME}/.gnupg" ]]; then
         mkdir "${HOME}/.gnupg"
         chown -R "$(whoami)" "${HOME}/.gnupg"
